@@ -19,6 +19,19 @@
 			rel="stylesheet"
 			href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css"
 		/>
+		<link
+			rel="preconnect"
+			href="https://fonts.googleapis.com"
+		/>
+		<link
+			rel="preconnect"
+			href="https://fonts.gstatic.com"
+			crossorigin
+		/>
+		<link
+			href="https://fonts.googleapis.com/css2?family=Inria+Sans:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap"
+			rel="stylesheet"
+		/>
 	</head>
 	<script>
 		document.addEventListener('DOMContentLoaded', () => {
@@ -33,7 +46,7 @@
 			});
 		});
 	</script>
-	<body>
+	<body class="inria-sans-regular">
 		<nav
 			class="navbar"
 			role="navigation"
@@ -41,11 +54,17 @@
 		>
 			<div class="container">
 				<div class="navbar-brand">
-					<a
-						class="navbar-item"
-						href="/"
-						>PatternWeb</a
-					>
+					<div class="brand-ctn">
+						<img
+							src="{{ url_for('static', filename='logo.svg') }}"
+							alt="hookneedle logo"
+						/>
+						<a
+							class="navbar-item"
+							href="/"
+							>hookneedle</a
+						>
+					</div>
 					<a
 						class="navbar-burger"
 						role="button"
@@ -63,22 +82,6 @@
 					class="navbar-menu"
 					id="navMenu"
 				>
-					<div class="navbar-start">
-						<a
-							class="navbar-item"
-							href="/"
-						>
-							Home
-						</a>
-
-						<a
-							class="navbar-item"
-							href="/about/"
-						>
-							About
-						</a>
-					</div>
-
 					<div class="navbar-end">
 						<div class="navbar-item">
 							<div class="buttons">
@@ -111,7 +114,7 @@
 			</div>
 		</nav>
 		<section class="container">
-			<header class="title">{% block header %}{% endblock %}</header>
+			<header class="header">{% block header %}{% endblock %}</header>
 			{% for message in get_flashed_messages() %}
 			<div class="flash">{{ message }}</div>
 			{% endfor %} {% block content %}{% endblock %}

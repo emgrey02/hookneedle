@@ -1,0 +1,62 @@
+{% extends 'base.html' %} {% block header %}
+<h1 class="title">{% block title %}{{ project['name'] }}{% endblock %}</h1>
+{% endblock %} {% block content %}
+<div>
+	<a
+		class="button"
+		href="{{ url_for('dash.edit', id=project['id']) }}"
+		>Edit</a
+	>
+</div>
+<div class="section columns">
+	<div class="column">
+		<div class="img-ctn">
+			<img
+				src="data:image/png;base64, {{ project['image'] }}"
+				alt="image of {{ project['name'] }}"
+			/>
+		</div>
+		<a href="{{ project['link'] }}">Link to Pattern</a>
+		<div>
+			<p class="title">Description</p>
+			<div class="subtitle">{{ project['desc_small'] }}</div>
+		</div>
+	</div>
+	<div class="column">
+		<div>
+			<p class="title">Craft</p>
+			<div class="subtitle">{{ project['which_craft'] }}</div>
+		</div>
+		<div>
+			{% if project['which_craft'] == 'crochet' %}
+			<p class="title">Hook size</p>
+			{% else %}
+			<p class="title">Needle size</p>
+			{% endif %}
+			<div class="subtitle">{{ project['hook_needle_size'] }}</div>
+		</div>
+		<div>
+			<p class="title">Yarn Weight</p>
+			<div class="subtitle">{{ project['yarn_weight'] }}</div>
+		</div>
+	</div>
+	<div class="column">
+		<div>
+			<p class="title">Status</p>
+			<div class="subtitle">{{ project['status'] }}</div>
+		</div>
+		<div>
+			<p class="title">Progress</p>
+			<progress
+				class="progress is-primary"
+				value="{{ project['progress'] }}"
+				max="100"
+			></progress>
+		</div>
+		<div>
+			<p class="title">Start Date</p>
+			<div class="subtitle">{{ project['start_date']}}</div>
+		</div>
+	</div>
+	{% endblock %}
+</div>

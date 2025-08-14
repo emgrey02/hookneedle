@@ -1,0 +1,226 @@
+{% extends 'base.html' %} {% block header %}
+<h1>{% block title %}New Project{% endblock %}</h1>
+{% endblock %} {% block content %}
+<form
+	method="POST"
+	name="add-project"
+	enctype="multipart/form-data"
+>
+	<fieldset>
+		<legend class="title is-6">Add a Project</legend>
+		<div class="columns is-2-mobile is-8-widescreen">
+			<div class="column">
+				<div class="field">
+					<label
+						for="name"
+						class="label"
+						>Name</label
+					>
+					<div class="control">
+						<input
+							id="name"
+							class="input"
+							type="text"
+							name="name"
+							placeholder="Project Name"
+						/>
+					</div>
+				</div>
+				<div class="field">
+					<label
+						for="link"
+						class="label"
+						>Link to Pattern</label
+					>
+					<div class="control">
+						<input
+							id="link"
+							class="input"
+							type="text"
+							name="link"
+							placeholder="Project Link"
+						/>
+					</div>
+				</div>
+				<div class="field">
+					<div class="file">
+						<label
+							for="image"
+							class="file-label"
+						>
+							<input
+								id="image"
+								class="file-input"
+								type="file"
+								name="image"
+								accept="image/png, image/jpeg, image/jpg"
+							/>
+							<span class="file-cta">
+								<span class="file-icon">
+									<i class="fas fa-upload"></i>
+								</span>
+								<span class="file-label">
+									Upload an Image
+								</span>
+							</span>
+						</label>
+					</div>
+				</div>
+				<div class="field">
+					<div class="radios">
+						<label
+							class="radio"
+							for="crochet-for"
+						>
+							<input
+								type="radio"
+								name="craft"
+								value="crochet"
+								id="crochet-for"
+							/>
+							Crochet
+						</label>
+						<label
+							class="radio"
+							for="knit-for"
+						>
+							<input
+								type="radio"
+								name="craft"
+								value="knit"
+								id="knit-for"
+							/>
+							Knit
+						</label>
+					</div>
+				</div>
+				<div class="field">
+					<label
+						for="desc"
+						class="label"
+						>Description</label
+					>
+					<div class="control">
+						<textarea
+							id="desc"
+							class="textarea"
+							name="desc"
+							rows="5"
+							placeholder="Write a small description of your project!"
+						></textarea>
+					</div>
+				</div>
+			</div>
+			<div class="column">
+				<div class="field">
+					<label
+						for="hook-needle-size"
+						class="label"
+						>Hook/Needle Size</label
+					>
+					<div class="control">
+						<input
+							id="hook-needle-size"
+							class="input"
+							type="number"
+							step=".25"
+							min="0"
+							max="20"
+							name="hook-needle-size"
+						/>
+					</div>
+				</div>
+				<div class="field">
+					<label
+						for="yarn-weight"
+						class="label"
+						>Yarn Weight</label
+					>
+					<div class="control">
+						<input
+							id="yarn-weight"
+							class="input"
+							type="text"
+							name="yarn-weight"
+						/>
+					</div>
+				</div>
+				<div class="field">
+					<label
+						for="status"
+						class="label"
+						>Status</label
+					>
+					<div class="select">
+						<select
+							name="status"
+							id="status"
+						>
+							<option value="in-progress">In progress</option>
+							<option value="backburner">
+								On the backburner
+							</option>
+							<option value="frogged">Frogged</option>
+							<option value="fnished">Finished</option>
+						</select>
+					</div>
+				</div>
+				<div class="field">
+					<label
+						for="progress"
+						class="label"
+						>Progress</label
+					>
+					<progress
+						class="progress is-success"
+						value="25"
+						max="100"
+					></progress>
+					<div class="control">
+						<input
+							id="progress"
+							class="input"
+							type="number"
+							step="10"
+							min="0"
+							max="100"
+							name="progress"
+						/>
+					</div>
+				</div>
+				<div class="field">
+					<label
+						for="start-date"
+						class="label"
+						>Start Date</label
+					>
+					<input
+						id="start-date"
+						class="input"
+						type="date"
+						name="start-date"
+					/>
+				</div>
+				<div class="field">
+					<label
+						for="completed"
+						class="checkbox"
+					>
+						<input
+							id="completed"
+							type="checkbox"
+							name="completed"
+						/>
+						Completed
+					</label>
+				</div>
+			</div>
+		</div>
+		<div id="form-button">
+			<div class="control">
+				<button class="button is-link">Save Changes</button>
+			</div>
+		</div>
+	</fieldset>
+</form>
+{% endblock %}

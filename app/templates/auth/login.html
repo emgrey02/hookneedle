@@ -1,10 +1,7 @@
 {% extends 'base.html' %} {% block header %}
 <h1>{% block title %}Log In{% endblock %}</h1>
 {% endblock %} {% block content %}
-<form
-	action="/login"
-	method="POST"
->
+<form method="POST">
 	<div class="field">
 		<label class="label">Username</label>
 		<div class="control">
