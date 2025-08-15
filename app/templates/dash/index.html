@@ -1,16 +1,16 @@
 {% extends 'base.html' %} {% block header %} {% block title %}Home{% endblock %}
 {% endblock %} {% block content %} {% if not g.user %}
 
-<div class="hero-body">
+<div class="hero">
 	<div>
-		<p class="title">hookneedle</p>
-		<p class="subtitle">
+		<h2>hookneedle</h2>
+		<p>
 			Keep track of your crochet/knitting projects and connect with
 			others!
 		</p>
 		<a
 			class="button"
-			href="/register"
+			href="/auth/register"
 			>Register Now</a
 		>
 	</div>
@@ -24,18 +24,29 @@
 	href="{{ url_for('dash.create') }}"
 	>Add Project</a
 >
-<ul class="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-5">
+<ul class="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 items-stretch">
 	{% for project in projects %}
-	<li>
+	<li class="w-full h-full">
 		<a
 			href="/project/{{ project['id'] }}"
-			class="button"
+			class="button grid place-items-center"
 		>
 			<h3 class="text-center">{{ project['name'] }}</h3>
+			{% if project['image'] %}
 			<img
+				class="aspect-square"
 				src="data:image/png;base64, {{ project['image'] }}"
 				alt="image representing the project called {{ project['name'] }}"
 			/>
+			{% else %}
+			<div class="bg-gray-700 child h-full">
+				<img
+					class="aspect-square"
+					src="{{ url_for('static', filename='logo.png') }}"
+					alt="hookneedle logo because no image available"
+				/>
+			</div>
+			{% endif %}
 		</a>
 	</li>
 	{% endfor %}

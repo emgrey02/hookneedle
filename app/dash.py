@@ -20,11 +20,13 @@ def index():
 @bp.route('/create', methods=['GET', 'POST'])
 @login_required
 def create():
+    error = None
+
     if request.method == 'POST':
         name = request.form.get('name')
         link = request.form.get('link')
         image = request.files['image']
-        craft = request.form['craft']
+        craft = request.form.get('craft')
         desc = request.form.get('desc')
         size = request.form.get('hook-needle-size')
         weight = request.form.get('yarn-weight')
@@ -36,20 +38,30 @@ def create():
         image_b64 = base64.b64encode(image.read()).decode('utf-8')
 
         db = get_db()
-        name = db.execute('SELECT name FROM project WHERE user_id = ? AND name = ?', (g.user['id'], name)).fetchone()
-        if name:
+
+        getName = db.execute('SELECT name FROM project WHERE user_id = ? AND name = ?', (g.user['id'], name)).fetchone()
+
+        if not craft:
+            error = 'You must select either crochet or knit!'
+
+        if getName:
             error = 'Project name must be unique!'
-            flash(error)
-            return redirect(url_for('dash.create'))
-        else:
+        
+        if not name:
+            error = 'Project must have a name!'
+            
+        if error is None:
             db.execute(
                 'INSERT INTO project (user_id, name, link, image, which_craft, desc_small, hook_needle_size, yarn_weight, status, progress, start_date, completed)'
                 'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
                 (g.user['id'], name, link, image_b64, craft, desc, size, weight, status, progress, startDate, completed)
             )
             db.commit()
+            return redirect(url_for('dash.index')) 
+        else:
+            flash(error)
+            return redirect(url_for('dash.create'))
         
-        return redirect(url_for('dash.index'))
     return render_template('dash/create.html')
 
 @bp.route('/project/<int:id>', methods=['GET'])

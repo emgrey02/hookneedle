@@ -51,7 +51,7 @@
 				</div>
 				<div class="flex items-center justify-center gap-2">
 					{% if g.user %}
-					<span>{{ g.user['username'] }}</span>
+					<span>hello, {{ g.user['username'] }}</span>
 					<a
 						class="button"
 						href="{{ url_for('auth.logout') }}"
@@ -77,10 +77,14 @@
 		</header>
 		<main class="mx-auto w-full max-w-6xl flex flex-col gap-8">
 			<h1 class="text-center">{% block header %}{% endblock %}</h1>
-			{% for message in get_flashed_messages() %}
-			<div class="flash">{{ message }}</div>
-			{% endfor %}
-			<section>{% block content %}{% endblock %}</section>
+			<div class="flex justify-center">
+				{% for message in get_flashed_messages() %}
+				<div class="flash max-w-[800px]">{{ message }}</div>
+				{% endfor %}
+			</div>
+			<section class="flex flex-col gap-10">
+				{% block content %}{% endblock %}
+			</section>
 		</main>
 	</body>
 </html>

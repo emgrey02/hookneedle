@@ -1,62 +1,100 @@
-{% extends 'base.html' %} {% block header %}
-<h1 class="title">{% block title %}{{ project['name'] }}{% endblock %}</h1>
-{% endblock %} {% block content %}
-<div>
+{% extends 'base.html' %} {% block header %} {% block title %}{{ project['name']
+}}{% endblock %} {% endblock %} {% block content %}
+<div class="flex w-full justify-center">
 	<a
 		class="button"
 		href="{{ url_for('dash.edit', id=project['id']) }}"
-		>Edit</a
+		>Edit Project Info</a
 	>
 </div>
-<div class="section columns">
-	<div class="column">
+<div class="grid grid-cols-1 sm:grid-cols-[300px_1fr] gap-4">
+	<div>
 		<div class="img-ctn">
+			{% if not project['image'] %}
+			<div class="bg-gray-700 w-full h-full grid place-items-center">
+				<img
+					src="{{ url_for('static', filename='logo.svg') }}"
+					alt="hookneedle logo because no image available"
+				/>
+			</div>
+			{% else %}
 			<img
 				src="data:image/png;base64, {{ project['image'] }}"
 				alt="image of {{ project['name'] }}"
 			/>
+			{% endif %}
 		</div>
-		<a href="{{ project['link'] }}">Link to Pattern</a>
+
+		{% if project['link'] %}
+		<a
+			class="button ms-0"
+			href="{{ project['link'] }}"
+			>Link to Pattern</a
+		>
+		{% endif %}
 		<div>
-			<p class="title">Description</p>
-			<div class="subtitle">{{ project['desc_small'] }}</div>
+			<h2>Description</h2>
+			{% if project['desc_small'] %}
+			<p>{{ project['desc_small'] }}</p>
+			{% else %}
+			<p>n/a</p>
+			{% endif %}
 		</div>
 	</div>
-	<div class="column">
+	<div class="grid grid-cols-1 gap-2">
 		<div>
-			<p class="title">Craft</p>
-			<div class="subtitle">{{ project['which_craft'] }}</div>
+			<h2>Craft</h2>
+			<div>{{ project['which_craft'] }}</div>
 		</div>
 		<div>
 			{% if project['which_craft'] == 'crochet' %}
-			<p>Hook size</p>
+			<h2>Hook size</h2>
 			{% else %}
-			<p>Needle size</p>
+			<h2>Needle size</h2>
+			{% endif %} {% if project['hook_needle_size'] %}
+			<div>{{ project['hook_needle_size'] }}</div>
+			{% else %}
+			<div>n/a</div>
 			{% endif %}
-			<div class="subtitle">{{ project['hook_needle_size'] }}</div>
 		</div>
 		<div>
-			<p class="title">Yarn Weight</p>
-			<div class="subtitle">{{ project['yarn_weight'] }}</div>
+			<h2>Yarn Weight</h2>
+			{% if project['yarn_weight'] %}
+			<div>{{ project['yarn_weight'] }}</div>
+			{% else %}
+			<div>n/a</div>
+			{% endif %}
 		</div>
-	</div>
-	<div class="column">
+
 		<div>
-			<p class="title">Status</p>
-			<div class="subtitle">{{ project['status'] }}</div>
+			<h2>Status</h2>
+			{% if project['status'] %}
+			<div>{{ project['status'] }}</div>
+			{% else %}
+			<div>n/a</div>
+			{% endif %}
 		</div>
 		<div>
-			<p class="title">Progress</p>
+			<h2>Progress</h2>
+			{% if project['progress'] %}
 			<progress
-				class="progress is-primary"
+				class="progress"
 				value="{{ project['progress'] }}"
 				max="100"
 			></progress>
+			{% else %}
+			<div>n/a</div>
+			{% endif %}
 		</div>
 		<div>
-			<p class="title">Start Date</p>
-			<div class="subtitle">{{ project['start_date']}}</div>
+			<h2>Start Date</h2>
+			{% if project['start_date'] %}
+			<div>{{ project['start_date']}}</div>
+			{% else %}
+			<div>n/a</div>
+			{% endif %}
 		</div>
 	</div>
+
 	{% endblock %}
 </div>
