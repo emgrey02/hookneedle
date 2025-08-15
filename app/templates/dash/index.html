@@ -1,45 +1,44 @@
-{% extends 'base.html' %} {% block header %}
-<h1>{% block title %}Home{% endblock %}</h1>
+{% extends 'base.html' %} {% block header %} {% block title %}Home{% endblock %}
 {% endblock %} {% block content %} {% if not g.user %}
-<section class="hero is-halfheight is-primary">
-	<div class="hero-body">
-		<div>
-			<p class="title">hookneedle</p>
-			<p class="subtitle">
-				Keep track of your crochet/knitting projects and connect with
-				others!
-			</p>
-			<a
-				class="button"
-				href="/register"
-				>Register Now</a
-			>
-		</div>
+
+<div class="hero-body">
+	<div>
+		<p class="title">hookneedle</p>
+		<p class="subtitle">
+			Keep track of your crochet/knitting projects and connect with
+			others!
+		</p>
+		<a
+			class="button"
+			href="/register"
+			>Register Now</a
+		>
 	</div>
-</section>
+</div>
+
 {% else %}
-<section>
-	<h2 class="title">Your Projects</h2>
-	<a
-		class="button"
-		href="{{ url_for('dash.create') }}"
-		>Add Project</a
-	>
-	<ul class="grid section">
-		{% for project in projects %}
-		<li>
-			<a href="/project/{{ project['id'] }}">
-				<h3 class="title">{{ project['name'] }}</h3>
-				<div class="img-ctn">
-					<img
-						src="data:image/png;base64, {{ project['image'] }}"
-						alt="image representing the project called {{ project['name'] }}"
-					/>
-				</div>
-				<a href="{{ project['link'] }}">Link to pattern</a>
-			</a>
-		</li>
-		{% endfor %}
-	</ul>
-</section>
+
+<h2>Your Projects</h2>
+<a
+	class="button"
+	href="{{ url_for('dash.create') }}"
+	>Add Project</a
+>
+<ul class="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-5">
+	{% for project in projects %}
+	<li>
+		<a
+			href="/project/{{ project['id'] }}"
+			class="button"
+		>
+			<h3 class="text-center">{{ project['name'] }}</h3>
+			<img
+				src="data:image/png;base64, {{ project['image'] }}"
+				alt="image representing the project called {{ project['name'] }}"
+			/>
+		</a>
+	</li>
+	{% endfor %}
+</ul>
+
 {% endif %} {% endblock %}

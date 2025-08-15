@@ -13,12 +13,9 @@
 		<title>{% block title %}{% endblock %} - hookneedle</title>
 		<link
 			rel="stylesheet"
-			href="{{ url_for('static', filename='style.css') }}"
+			href="{{ url_for('static', filename='css/output-style.css') }}"
 		/>
-		<link
-			rel="stylesheet"
-			href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css"
-		/>
+
 		<link
 			rel="preconnect"
 			href="https://fonts.googleapis.com"
@@ -33,91 +30,57 @@
 			rel="stylesheet"
 		/>
 	</head>
-	<script>
-		document.addEventListener('DOMContentLoaded', () => {
-			const navbarBurger = document.querySelector('.navbar-burger');
-
-			navbarBurger.addEventListener('click', () => {
-				const target = navbarBurger.dataset.target;
-				const navMenu = document.querySelector(`#${target}`);
-
-				navbarBurger.classList.toggle('is-active');
-				navMenu.classList.toggle('is-active');
-			});
-		});
-	</script>
 	<body class="inria-sans-regular">
-		<nav
-			class="navbar"
-			role="navigation"
-			aria-label="main navigation"
-		>
-			<div class="container">
-				<div class="navbar-brand">
-					<div class="brand-ctn">
+		<header>
+			<nav
+				class="mx-auto flex flex-col justify-center max-w-7xl items-center p-6 lg:px-8 sm:flex-row sm:justify-between"
+				role="navigation"
+				aria-label="main navigation"
+			>
+				<div
+					class="flex items-center justify-center sm:justify-start w-fit"
+				>
+					<a href="/">
 						<img
 							src="{{ url_for('static', filename='logo.svg') }}"
 							alt="hookneedle logo"
+							class="h-8 w-auto"
 						/>
-						<a
-							class="navbar-item"
-							href="/"
-							>hookneedle</a
-						>
-					</div>
-					<a
-						class="navbar-burger"
-						role="button"
-						data-target="navMenu"
-						aria-label="menu"
-						aria-expanded="false"
-					>
-						<span aria-hidden="true"></span>
-						<span aria-hidden="true"></span>
-						<span aria-hidden="true"></span>
-						<span aria-hidden="true"></span>
 					</a>
+					<div class="-ms-4 text-lg me-4">hookneedle</div>
 				</div>
-				<div
-					class="navbar-menu"
-					id="navMenu"
-				>
-					<div class="navbar-end">
-						<div class="navbar-item">
-							<div class="buttons">
-								{% if g.user %}
-								<span>{{ g.user['username'] }}</span>
-								<a
-									class="button is-dark"
-									href="{{ url_for('auth.logout') }}"
-								>
-									Log out
-								</a>
-								{% else %}
-								<a
-									class="button is-dark"
-									href="{{ url_for('auth.register') }}"
-								>
-									<strong>Register</strong>
-								</a>
-								<a
-									class="button is-primary"
-									href="{{ url_for('auth.login') }}"
-								>
-									Log in
-								</a>
-								{% endif %}
-							</div>
-						</div>
-					</div>
+				<div class="flex items-center justify-center gap-2">
+					{% if g.user %}
+					<span>{{ g.user['username'] }}</span>
+					<a
+						class="button"
+						href="{{ url_for('auth.logout') }}"
+					>
+						Log out
+					</a>
+					{% else %}
+					<a
+						class="button is-primary"
+						href="{{ url_for('auth.register') }}"
+					>
+						<strong>Register</strong>
+					</a>
+					<a
+						class="button"
+						href="{{ url_for('auth.login') }}"
+					>
+						Log in
+					</a>
+					{% endif %}
 				</div>
-			</div>
-		</nav>
-		<section class="container">
-			<header class="header">{% block header %}{% endblock %}</header>
+			</nav>
+		</header>
+		<main class="mx-auto w-full max-w-6xl flex flex-col gap-8">
+			<h1 class="text-center">{% block header %}{% endblock %}</h1>
 			{% for message in get_flashed_messages() %}
 			<div class="flash">{{ message }}</div>
-			{% endfor %} {% block content %}{% endblock %}
-		</section>
+			{% endfor %}
+			<section>{% block content %}{% endblock %}</section>
+		</main>
 	</body>
 </html>

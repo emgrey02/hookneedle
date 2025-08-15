@@ -1,10 +1,13 @@
-{% extends 'base.html' %} {% block header %}
-<h1>{% block title %}Register{% endblock %}</h1>
-{% endblock %} {% block content %}
-<form method="POST">
-	<div class="field">
-		<label class="label">Username</label>
-		<div class="control">
+{% extends 'base.html' %} {% block header %} {% block title %}Register{%
+endblock %} {% endblock %} {% block content %}
+<div class="form-ctn">
+	<form
+		method="POST"
+		class="grid gap-4 max-w-[500px]"
+	>
+		<div class="field">
+			<label class="label">Username</label>
+
 			<input
 				class="input"
 				type="text"
@@ -12,10 +15,9 @@
 				name="username"
 			/>
 		</div>
-	</div>
-	<div class="field">
-		<label class="label">Password</label>
-		<div class="control">
+		<div class="field">
+			<label class="label">Password</label>
+
 			<input
 				class="input"
 				type="password"
@@ -23,10 +25,9 @@
 				name="password"
 			/>
 		</div>
-	</div>
-	<div class="field">
-		<label class="label">Confirm Password</label>
-		<div class="control">
+		<div class="field">
+			<label class="label">Confirm Password</label>
+
 			<input
 				class="input"
 				type="password"
@@ -34,9 +35,7 @@
 				name="password-confirm"
 			/>
 		</div>
-	</div>
-	<div class="field">
-		<div class="control">
+		<div class="field">
 			<button
 				type="submit"
 				class="button is-link"
@@ -44,6 +43,6 @@
 				Submit
 			</button>
 		</div>
-	</div>
-</form>
+	</form>
+</div>
 {% endblock %}

@@ -34,15 +34,21 @@ def create():
         completed = request.form.get('completed')
 
         image_b64 = base64.b64encode(image.read()).decode('utf-8')
-        print(image_b64)
 
         db = get_db()
-        db.execute(
-            'INSERT INTO project (user_id, name, link, image, which_craft, desc_small, hook_needle_size, yarn_weight, status, progress, start_date, completed)'
-            'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-            (g.user['id'], name, link, image_b64, craft, desc, size, weight, status, progress, startDate, completed)
-        )
-        db.commit()
+        name = db.execute('SELECT name FROM project WHERE user_id = ? AND name = ?', (g.user['id'], name)).fetchone()
+        if name:
+            error = 'Project name must be unique!'
+            flash(error)
+            return redirect(url_for('dash.create'))
+        else:
+            db.execute(
+                'INSERT INTO project (user_id, name, link, image, which_craft, desc_small, hook_needle_size, yarn_weight, status, progress, start_date, completed)'
+                'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                (g.user['id'], name, link, image_b64, craft, desc, size, weight, status, progress, startDate, completed)
+            )
+            db.commit()
+        
         return redirect(url_for('dash.index'))
     return render_template('dash/create.html')
 
