@@ -1,0 +1,13 @@
+[build-system]
+requires = ["flit_core >=3.11,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "app"
+authors = [{name = "Emma Grey", email = "emgrey02@gmail.com"}]
+license = "MIT"
+license-files = ["LICENSE"]
+dynamic = ["version", "description"]
+
+[project.urls]
+Home = "https://hookneedle.vercel.app"

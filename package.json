@@ -1,6 +1,9 @@
 {
-  "dependencies": {
-    "@tailwindcss/cli": "^4.1.12",
-    "tailwindcss": "^4.1.12"
-  }
+	"dependencies": {
+		"@tailwindcss/cli": "^4.1.12",
+		"tailwindcss": "^4.1.12"
+	},
+	"scripts": {
+		"watch": "npx tailwindcss -i ./app/static/css/style.css -o ./app/static/css/output-style.css --minify --watch"
+	}
 }

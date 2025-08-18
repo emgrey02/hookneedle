@@ -1,5 +1,7 @@
-import os
+"""A crochet/knitting project management website"""
+__version__ = '0.1'
 
+import os
 from flask import Flask
 
 def create_app(test_config=None):
@@ -22,11 +24,8 @@ def create_app(test_config=None):
         os.makedirs(app.instance_path)
     except OSError:
         pass
-
-    @app.route('/hello')
-    def hello():
-        return 'Hello, World!'
     
+    # initialize our app
     from . import db
     db.init_app(app)
 
@@ -36,5 +35,8 @@ def create_app(test_config=None):
     from . import dash
     app.register_blueprint(dash.bp)
     app.add_url_rule('/', endpoint='index')
+
+    from . import user
+    app.register_blueprint(user.bp)
     
     return app

@@ -1,0 +1,340 @@
+{% extends 'base.html' %} {% block header %} {% block title %}Edit Project{%
+endblock %} {% endblock %} {% block content %}
+<div class="form-ctn">
+	<form
+		method="POST"
+		name="edit-project"
+		enctype="multipart/form-data"
+		class="max-w-[800px]"
+	>
+		<div class="w-full columns-xs max-w-[800px]">
+			<div class="field">
+				<label
+					for="name"
+					class="label"
+					>Name</label
+				>
+				<input
+					id="name"
+					class="input"
+					type="text"
+					name="name"
+					placeholder="Project Name"
+					value="{{ project['name'] }}"
+				/>
+			</div>
+			<div class="field">
+				<label
+					for="link"
+					class="label"
+					>Link to Pattern</label
+				>
+				<input
+					id="link"
+					class="input"
+					type="text"
+					name="link"
+					placeholder="Project Link"
+					value="{{ project['link']}}"
+				/>
+			</div>
+			<div class="field">
+				<label
+					for="image"
+					class="file-label"
+				>
+					Upload an image
+				</label>
+				<input
+					id="image"
+					class="file-input"
+					type="file"
+					name="image"
+					accept="image/png, image/jpeg, image/jpg"
+				/>
+			</div>
+			<div class="field">
+				<label for="craft">Craft</label>
+				<div class="radios">
+					<label
+						class="radio"
+						for="crochet-for"
+					>
+						{% if project['which_craft'] == 'crochet' %}
+						<input
+							type="radio"
+							name="craft"
+							value="crochet"
+							id="crochet-for"
+							checked
+						/>
+						{% else %}
+						<input
+							type="radio"
+							name="craft"
+							value="crochet"
+							id="crochet-for"
+						/>
+						{% endif %} Crochet
+					</label>
+					<label
+						class="radio"
+						for="knit-for"
+					>
+						{% if project['which_craft'] == 'knit' %}
+						<input
+							type="radio"
+							name="craft"
+							value="knit"
+							id="knit-for"
+							checked
+						/>
+						{% else %}
+						<input
+							type="radio"
+							name="craft"
+							value="knit"
+							id="knit-for"
+						/>
+						{% endif %} Knit
+					</label>
+				</div>
+			</div>
+			<div class="field">
+				<label
+					for="desc"
+					class="label"
+					>Description</label
+				>
+				<textarea
+					id="desc"
+					class="textarea"
+					name="desc"
+					rows="5"
+					placeholder="Write a small description of your project!"
+				>
+{{project['desc_small']}}</textarea
+				>
+			</div>
+
+			<div class="field">
+				<label
+					for="hook-needle-size"
+					class="label"
+					>Hook/Needle Size</label
+				>
+
+				<input
+					id="hook-needle-size"
+					class="input"
+					type="number"
+					step=".25"
+					min="0"
+					max="20"
+					name="hook-needle-size"
+					value="{{ project['hook_needle_size']}}"
+				/>
+			</div>
+			<div class="field">
+				<label
+					for="yarn-weight"
+					class="label"
+					>Yarn Weight</label
+				>
+
+				<input
+					id="yarn-weight"
+					class="input"
+					type="text"
+					name="yarn-weight"
+					value="{{ project['yarn_weight']}}"
+				/>
+			</div>
+			<div class="field">
+				<label
+					for="status"
+					class="label"
+					>Status</label
+				>
+				<div class="select">
+					<select
+						name="status"
+						id="status"
+					>
+						{% if project['status'] == 'in-progress' %}
+						<option
+							value="in-progress"
+							selected
+						>
+							In progress
+						</option>
+						<option value="backburner">On the backburner</option>
+						<option value="frogged">Frogged</option>
+						<option value="fnished">Finished</option>
+						{% elif project['status'] == 'backburner' %}
+						<option value="in-progress">In progress</option>
+						<option
+							value="backburner"
+							selected
+						>
+							On the backburner
+						</option>
+						<option value="frogged">Frogged</option>
+						<option value="fnished">Finished</option>
+						{% elif project['status'] == 'frogged' %}
+						<option value="in-progress">In progress</option>
+						<option value="backburner">On the backburner</option>
+						<option
+							value="frogged"
+							selected
+						>
+							Frogged
+						</option>
+						<option value="fnished">Finished</option>
+						{% elif project['status'] == 'finished' %}
+						<option value="in-progress">In progress</option>
+						<option value="backburner">On the backburner</option>
+						<option value="frogged">Frogged</option>
+						<option
+							value="fnished"
+							selected
+						>
+							Finished
+						</option>
+						{% else %}
+						<option value="in-progress">In progress</option>
+						<option value="backburner">On the backburner</option>
+						<option value="frogged">Frogged</option>
+						<option
+							value="fnished"
+							selected
+						>
+							Finished
+						</option>
+						{% endif %}
+					</select>
+					<span class="focus"></span>
+				</div>
+			</div>
+			<div class="field">
+				<label
+					for="progress"
+					class="label"
+					>Progress</label
+				>
+				<progress
+					id="progress"
+					class="progress"
+					max="100"
+				></progress>
+
+				<input
+					id="progress-input"
+					class="input"
+					type="number"
+					step="10"
+					value="{{ project['progress'] }}"
+					min="0"
+					max="100"
+					name="progress"
+				/>
+			</div>
+			<div class="field">
+				<label
+					for="start-date"
+					class="label"
+					>Start Date</label
+				>
+				<input
+					id="start-date"
+					class="input"
+					type="date"
+					name="start-date"
+					value="{{ project['start_date']}}"
+				/>
+			</div>
+			<div class="field">
+				<label
+					for="completed"
+					class="checkbox"
+				>
+					{% if project['complete'] == 0 %}
+					<input
+						id="completed"
+						type="checkbox"
+						name="completed"
+						selected
+					/>
+					{% else %}
+					<input
+						id="completed"
+						type="checkbox"
+						name="completed"
+					/>
+					{% endif %} Completed
+				</label>
+			</div>
+		</div>
+		<div class="form-btn-ctn">
+			<button
+				type="submit"
+				class="button"
+			>
+				Save Changes
+			</button>
+		</div>
+	</form>
+</div>
+<script>
+	document.addEventListener('DOMContentLoaded', () => {
+		let fileType = '{{ project["image_mimetype"]}}';
+		let fileBits = '{{ project["image_data"]}}';
+		let fileName = '{{ project["image_filename"]}}';
+
+		let progBarInput = document.querySelector('#progress-input');
+		let progBar = document.querySelector('#progress');
+		progBar.value = progBarInput.value;
+
+		progBarInput.addEventListener('input', () => {
+			value = progBarInput.value;
+			progBar.value = value;
+		});
+
+		// https://www.geeksforgeeks.org/javascript/how-to-convert-base64-to-file-in-javascript/
+		convertBase64ToBlob = (base64Image) => {
+			// Split into two parts
+			const base64Data = base64Image.replace(/^data:.+;base64,/, '');
+
+			// Hold the content type
+			const imageType = fileType;
+
+			// Decode Base64 string
+			const decodedData = atob(base64Data);
+			console.log(decodedData);
+
+			const byteNumbers = new Array(decodedData.length);
+
+			// Insert all character code into uInt8Array
+			for (let i = 0; i < decodedData.length; ++i) {
+				byteNumbers[i] = decodedData.charCodeAt(i);
+			}
+
+			// Return BLOB image after conversion
+			const byteArray = new Uint8Array(byteNumbers);
+			return new Blob([byteArray], { type: imageType });
+		};
+
+		blob = convertBase64ToBlob(fileBits);
+		const fileInput = document.querySelector('#image');
+
+		const myFile = new File([blob], fileName, {
+			type: fileType,
+			lastModified: new Date(),
+		});
+
+		const dataTransfer = new DataTransfer();
+		dataTransfer.items.add(myFile);
+		fileInput.files = dataTransfer.files;
+	});
+</script>
+{% endblock %}

@@ -1,100 +1,162 @@
-{% extends 'base.html' %} {% block header %} {% block title %}{{ project['name']
-}}{% endblock %} {% endblock %} {% block content %}
-<div class="flex w-full justify-center">
-	<a
-		class="button"
-		href="{{ url_for('dash.edit', id=project['id']) }}"
-		>Edit Project Info</a
-	>
-</div>
-<div class="grid grid-cols-1 sm:grid-cols-[300px_1fr] gap-4">
-	<div>
-		<div class="img-ctn">
-			{% if not project['image'] %}
-			<div class="bg-gray-700 w-full h-full grid place-items-center">
-				<img
-					src="{{ url_for('static', filename='logo.svg') }}"
-					alt="hookneedle logo because no image available"
-				/>
-			</div>
-			{% else %}
-			<img
-				src="data:image/png;base64, {{ project['image'] }}"
-				alt="image of {{ project['name'] }}"
-			/>
-			{% endif %}
-		</div>
+{% extends 'base.html' %}
+{% block header %}
+    {% block title %}
+        {{ project['name']
+        }}
+    {% endblock %}
+{% endblock %}
+{% block content %}
+    <div class="flex w-full justify-end gap-4">
+        <a class="button" href="{{ url_for('dash.edit', id=project['id']) }}">Edit Project Info</a>
+        <button id="delete-btn" class="button is-danger">Delete Project</button>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-[300px_1fr] gap-4">
+        <div>
+            <div class="img-ctn">
+                {% if not project['image_data'] %}
+                    <div class="bg-gray-700 w-full h-full grid place-items-center">
+                        <img src="{{ url_for('static', filename='logo.svg') }}"
+                             alt="hookneedle logo because no image available" />
+                    </div>
+                {% else %}
+                    <img src="{{ project['image_data'] }}"
+                         alt="image of {{ project['name'] }}" />
+                {% endif %}
+            </div>
+            {% if project['link'] %}<a class="button ms-0" href="{{ project['link'] }}">Link to Pattern</a>{% endif %}
+            <div>
+                <h2>Description</h2>
+                {% if project['desc_small'] %}
+                    <p>{{ project['desc_small'] }}</p>
+                {% else %}
+                    <p>n/a</p>
+                {% endif %}
+            </div>
+        </div>
+        <div class="flex flex-col gap-2">
+            <div class="flex items-end gap-4">
+                <h2>Craft</h2>
+                <div>{{ project['which_craft'] }}</div>
+            </div>
+            <div class="flex items-end gap-4">
+                {% if project['which_craft'] == 'crochet' %}
+                    <h2>Hook size</h2>
+                {% else %}
+                    <h2>Needle size</h2>
+                {% endif %}
+                {% if project['hook_needle_size'] %}
+                    <div>{{ project['hook_needle_size'] }}</div>
+                {% else %}
+                    <div>n/a</div>
+                {% endif %}
+            </div>
+            <div class="flex items-end gap-4">
+                <h2>Yarn Weight</h2>
+                {% if project['yarn_weight'] %}
+                    <div>{{ project['yarn_weight'] }}</div>
+                {% else %}
+                    <div>n/a</div>
+                {% endif %}
+            </div>
+            <hr class="my-4 w-1/3" />
+            <div class="flex items-end gap-4">
+                <h2>Status</h2>
+                {% if project['status'] %}
+                    <div>{{ project['status'] }}</div>
+                {% else %}
+                    <div>n/a</div>
+                {% endif %}
+            </div>
+            <div class="flex items-end gap-4">
+                <h2>Progress</h2>
+                {% if project['progress'] %}
+                    <progress class="progress" value="{{ project['progress'] }}" max="100"></progress>
+                {% else %}
+                    <div>n/a</div>
+                {% endif %}
+            </div>
+            <div class="flex items-end gap-4">
+                <h2>Start Date</h2>
+                {% if project['start_date'] %}
+                    <div>{{ project['start_date'] }}</div>
+                {% else %}
+                    <div>n/a</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div>
+        <h2>Notes</h2>
+        <div class="text-[rgb(var(--text-color))] fill-[rgb(var(--text-color))]">
+            <div id="editor"
+                 class="bg-[rgb(var(--bkgd-color))] text-[rgb(var(--text-color))]"></div>
+        </div>
+        <div class="flex gap-2 items-center">
+            <button class="button" id="save-btn" type="submit">Save Note</button>
+            <div id="save-message" class="text-green-500"></div>
+        </div>
+    </div>
+    <script>
+	let projectId = "{{ project['id'] }}";
 
-		{% if project['link'] %}
-		<a
-			class="button ms-0"
-			href="{{ project['link'] }}"
-			>Link to Pattern</a
-		>
-		{% endif %}
-		<div>
-			<h2>Description</h2>
-			{% if project['desc_small'] %}
-			<p>{{ project['desc_small'] }}</p>
-			{% else %}
-			<p>n/a</p>
-			{% endif %}
-		</div>
-	</div>
-	<div class="grid grid-cols-1 gap-2">
-		<div>
-			<h2>Craft</h2>
-			<div>{{ project['which_craft'] }}</div>
-		</div>
-		<div>
-			{% if project['which_craft'] == 'crochet' %}
-			<h2>Hook size</h2>
-			{% else %}
-			<h2>Needle size</h2>
-			{% endif %} {% if project['hook_needle_size'] %}
-			<div>{{ project['hook_needle_size'] }}</div>
-			{% else %}
-			<div>n/a</div>
-			{% endif %}
-		</div>
-		<div>
-			<h2>Yarn Weight</h2>
-			{% if project['yarn_weight'] %}
-			<div>{{ project['yarn_weight'] }}</div>
-			{% else %}
-			<div>n/a</div>
-			{% endif %}
-		</div>
+	const quill = new Quill('#editor', {
+		modules: { toolbar: true },
+		theme: 'snow',
+	});
 
-		<div>
-			<h2>Status</h2>
-			{% if project['status'] %}
-			<div>{{ project['status'] }}</div>
-			{% else %}
-			<div>n/a</div>
-			{% endif %}
-		</div>
-		<div>
-			<h2>Progress</h2>
-			{% if project['progress'] %}
-			<progress
-				class="progress"
-				value="{{ project['progress'] }}"
-				max="100"
-			></progress>
-			{% else %}
-			<div>n/a</div>
-			{% endif %}
-		</div>
-		<div>
-			<h2>Start Date</h2>
-			{% if project['start_date'] %}
-			<div>{{ project['start_date']}}</div>
-			{% else %}
-			<div>n/a</div>
-			{% endif %}
-		</div>
-	</div>
+	let getNote = async () => {
+		try {
+			const response = await fetch(`/note/${projectId}`);
+			if (!response.ok) {
+				throw new Error(`Response status: ${response.status}`);
+			}
+			const res = await response.json();
+			quill.setContents(res);
+		} catch (error) {
+			console.error(error.message);
+		}
+	};
 
-	{% endblock %}
-</div>
+	getNote();
+
+	document
+		.querySelector('#delete-btn')
+		.addEventListener('click', async () => {
+			fetch(`/project/delete/${projectId}`, {
+				method: 'DELETE',
+				headers: {
+					'Content-type': 'application/json; charset=UTF-8',
+				},
+			})
+				.then((res) => res.json())
+				.then((data) => {
+					if (data == 'project successfully deleted') {
+						window.location.replace('/');
+					}
+				})
+				.catch((error) =>
+					console.error('CAUGHT ERROR ON DELETE', error)
+				);
+		});
+
+	document.querySelector('#save-btn').addEventListener('click', async () => {
+		let delta = quill.getContents();
+
+		fetch(`/note/${projectId}/create`, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify(delta),
+		})
+			.then(
+				() =>
+					(document.querySelector('#save-message').textContent =
+						'Note Saved!')
+			)
+			.catch((error) => console.error('CAUGHT ERROR ON POST', error));
+
+		setTimeout(() => {
+			document.querySelector('#save-message').textContent = '';
+		}, 2000);
+	});
+    </script>
+{% endblock %}

@@ -24,7 +24,7 @@
 	href="{{ url_for('dash.create') }}"
 	>Add Project</a
 >
-<ul class="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 items-stretch">
+<ul class="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 items-stretch gap-8">
 	{% for project in projects %}
 	<li class="w-full h-full">
 		<a
@@ -32,10 +32,10 @@
 			class="button grid place-items-center"
 		>
 			<h3 class="text-center">{{ project['name'] }}</h3>
-			{% if project['image'] %}
+			{% if project['image_data'] %}
 			<img
 				class="aspect-square"
-				src="data:image/png;base64, {{ project['image'] }}"
+				src="{{ project['image_data'] }}"
 				alt="image representing the project called {{ project['name'] }}"
 			/>
 			{% else %}

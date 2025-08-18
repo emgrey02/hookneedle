@@ -15,6 +15,10 @@
 			rel="stylesheet"
 			href="{{ url_for('static', filename='css/output-style.css') }}"
 		/>
+		<link
+			href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css"
+			rel="stylesheet"
+		/>
 
 		<link
 			rel="preconnect"
@@ -29,6 +33,7 @@
 			href="https://fonts.googleapis.com/css2?family=Inria+Sans:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap"
 			rel="stylesheet"
 		/>
+		<script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
 	</head>
 	<body class="inria-sans-regular">
 		<header>
@@ -74,15 +79,48 @@
 					{% endif %}
 				</div>
 			</nav>
+			{% if g.user %}
+			<nav
+				role="menubar"
+				class="mx-auto flex justify-center max-w-7xl items-center px-6 py-2 lg:px-8 sm:flex-row sm:justify-end bg-gray-800"
+			>
+				<ul class="flex justify-end gap-4">
+					<li role="none">
+						<a
+							href="/user/profile/{{ g.user['id'] }}"
+							role="menuitem"
+							>Profile</a
+						>
+					</li>
+					<li role="none">
+						<a
+							href="/user/{{ g.user['id'] }}/friends"
+							role="menuitem"
+							>Friends</a
+						>
+					</li>
+					<li role="none">
+						<a
+							href="{{ url_for('dash.members')}}"
+							role="menuitem"
+							>Members</a
+						>
+					</li>
+				</ul>
+			</nav>
+			{% endif %}
 		</header>
-		<main class="mx-auto w-full max-w-6xl flex flex-col gap-8">
+		<main class="mx-auto w-full max-w-6xl flex flex-col gap-2">
 			<h1 class="text-center">{% block header %}{% endblock %}</h1>
 			<div class="flex justify-center">
-				{% for message in get_flashed_messages() %}
-				<div class="flash max-w-[800px]">{{ message }}</div>
-				{% endfor %}
+				{% with messages = get_flashed_messages(with_categories=true) %}
+				{% if messages %} {% for category, message in messages %}
+				<div class="flash max-w-[800px] {{ category }}">
+					{{ message }}
+				</div>
+				{% endfor %} {% endif %} {% endwith %}
 			</div>
-			<section class="flex flex-col gap-10">
+			<section class="flex flex-col gap-4">
 				{% block content %}{% endblock %}
 			</section>
 		</main>

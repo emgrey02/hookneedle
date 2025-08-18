@@ -1,0 +1,14 @@
+{% extends 'base.html' %} {% block header %} {% block title %}Members{% endblock
+%} {% endblock %} {% block content %}
+<div>
+	<ul>
+		{% for member in members %}
+		<li>
+			<a href="{{ url_for('user.profile', id=member.id) }}"
+				>{{member.username}}</a
+			>
+		</li>
+		{% endfor %}
+	</ul>
+</div>
+{% endblock %}
