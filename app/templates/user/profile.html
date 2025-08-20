@@ -5,25 +5,27 @@
 {% block content %}
     <div class="flex w-full justify-end gap-4">
         <!-- if this user profile is the current user's profile -->
-        {% if g.user['id'] == user.id %}
-            <a class="button" href="{{ url_for('user.edit', id=user.id) }}">Update Profile</a>
+        {% if g.user['id'] == thisUser.id %}
+            <a class="button" href="{{ url_for('user.edit', id=thisUser.id) }}">Update Profile</a>
             <!-- this is another user's profile -->
         {% else %}
-            <!-- loop through logged-in-user's friends -->
-            {% if friends %}
-                <!-- if logged-in-user is friends with this user-->
+            <!-- if logged in user is friends with this user -->
+            {% if friendship %}
                 <div class="text-green-500">✓ Your Friend!</div>
-            {% elif acceptFriendRequest %}
-                <button id="add-friend" class="button is-secondary">Accept Friend Request</button>
-            {% elif friendshipRequested %}
-                <div class="text-yellow-400">✓ Friendship Requested</div>
-            {% elif addFriendBtn %}
+                <!-- if there is a request between logged in user and this user -->
+            {% elif request %}
+                {% if (request['user1_id'] == thisUser.id) %}
+                    <button id="add-friend" class="button is-secondary">Accept Friend Request</button>
+                {% elif (request['user1_id'] == g.user['id']) %}
+                    <div class="text-yellow-400">✓ Friendship Requested</div>
+                {% endif %}
+            {% else %}
                 <button id="add-friend" class="button">Add Friend</button>
             {% endif %}
         {% endif %}
     </div>
     <div class="flex flex-col gap-4">
-        <h2>{{ user.username }}</h2>
+        <h2>{{ thisUser.username }}</h2>
         <div class="img-ctn">
             {% if not profile['image_data'] %}
                 <div class="bg-gray-700 w-full h-full grid place-items-center">
@@ -36,7 +38,7 @@
                 <img height="400"
                      width="400"
                      src="{{ profile['image_data'] }}"
-                     alt="image of {{ user.username }}" />
+                     alt="image of {{ thisUser.username }}" />
             {% endif %}
         </div>
         <div>
@@ -53,28 +55,28 @@
                 <ul>
                     {% for project in projects %}
                         <li>
-                            <a href="/project/{{ project.id }}">{{ project.name }}</a>
+                            <a class="link" href="/project/{{ project.id }}">{{ project.name }}</a>
                         </li>
                     {% endfor %}
                 </ul>
             </div>
         {% endif %}
-        <div>
-            <h3>Friends</h3>
-            {% if userFriends %}
+        {% if userFriends %}
+            <div>
+                <h3>Friends</h3>
                 <ul>
                     {% for friend in userFriends %}
                         <li>
-                            <a href='/user/profile/{{ friend["user2_id"] }}'>{{ friend.username }}</a>
+                            <a class="link" href='/user/profile/{{ friend["friendId"] }}'>{{ friend.friendUsername }}</a>
                         </li>
                     {% endfor %}
                 </ul>
-            {% endif %}
-        </div>
+            </div>
+        {% endif %}
     </div>
     <script>
 	document.addEventListener('DOMContentLoaded', () => {
-		friendId = '{{ user.id }}';
+		friendId = '{{ thisUser.id }}';
 
 		addFriendBtn = document.querySelector('#add-friend');
 

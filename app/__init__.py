@@ -3,6 +3,7 @@ __version__ = '0.1'
 
 import os
 from flask import Flask
+import cloudinary as Cloud
 
 def create_app(test_config=None):
     # create and configure the app
@@ -10,7 +11,10 @@ def create_app(test_config=None):
     app.config.from_mapping(
         SECRET_KEY='dev',
         DATABASE=os.path.join(app.instance_path, 'hookneedle.db'),
+        UPLOAD_FOLDER = 'uploads'
     )
+
+    
 
     if test_config is None:
         # load the instance config, if it exists, when not testing
@@ -38,5 +42,7 @@ def create_app(test_config=None):
 
     from . import user
     app.register_blueprint(user.bp)
+
+    app.add_url_rule("/uploads/<name>", endpoint="dash.download_file", build_only=True)
     
     return app

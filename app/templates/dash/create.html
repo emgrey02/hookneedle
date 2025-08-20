@@ -1,220 +1,130 @@
-{% extends 'base.html' %} {% block header %} {% block title %}Add Project{%
-endblock %} {% endblock %} {% block content %}
-<div class="form-ctn">
-	<form
-		method="POST"
-		name="add-project"
-		enctype="multipart/form-data"
-		class="max-w-[800px]"
-	>
-		<div class="w-full columns-xs max-w-[800px]">
-			<div class="field">
-				<label
-					for="name"
-					class="label"
-					>Name</label
-				>
-				<input
-					id="name"
-					class="input"
-					type="text"
-					name="name"
-					placeholder="Project Name"
-				/>
-			</div>
-			<div class="field">
-				<label
-					for="link"
-					class="label"
-					>Link to Pattern</label
-				>
-				<input
-					id="link"
-					class="input"
-					type="text"
-					name="link"
-					placeholder="Project Link"
-				/>
-			</div>
-			<div class="field">
-				<label
-					for="image"
-					class="file-label"
-				>
-					Upload an image
-				</label>
-				<input
-					id="image"
-					class="file-input"
-					type="file"
-					name="image"
-					accept="image/png, image/jpeg, image/jpg"
-				/>
-			</div>
-			<div class="field">
-				<label for="craft">Craft</label>
-				<div class="radios">
-					<label
-						class="radio"
-						for="crochet-for"
-					>
-						<input
-							type="radio"
-							name="craft"
-							value="crochet"
-							id="crochet-for"
-						/>
-						Crochet
-					</label>
-					<label
-						class="radio"
-						for="knit-for"
-					>
-						<input
-							type="radio"
-							name="craft"
-							value="knit"
-							id="knit-for"
-						/>
-						Knit
-					</label>
-				</div>
-			</div>
-			<div class="field">
-				<label
-					for="desc"
-					class="label"
-					>Description</label
-				>
-				<textarea
-					id="desc"
-					class="textarea"
-					name="desc"
-					rows="5"
-					placeholder="Write a small description of your project!"
-				></textarea>
-			</div>
+{% extends 'base.html' %}
+{% block header %}
+    {% block title %}
+        Add Project{%
+        endblock %}
+    {% endblock %}
+    {% block content %}
+        <div class="form-ctn">
+            <form method="post"
+                  name="add-project"
+                  enctype="multipart/form-data"
+                  class="max-w-[800px]">
+                <div class="w-full columns-xs max-w-[800px]">
+                    <div class="field">
+                        <label for="name" class="label">Name</label>
+                        <input id="name"
+                               class="input"
+                               type="text"
+                               name="name"
+                               placeholder="Project Name" />
+                    </div>
+                    <div class="field">
+                        <label for="link" class="label">Link to Pattern</label>
+                        <input id="link"
+                               class="input"
+                               type="text"
+                               name="link"
+                               placeholder="Project Link" />
+                    </div>
+                    <div class="field">
+                        <label for="upload" class="label">Upload a Pattern</label>
+                        <input id="upload"
+                               class="input"
+                               type="file"
+                               name="upload"
+                               accept=".pdf, .doc, .docx" />
+                    </div>
+                    <div class="field">
+                        <label for="image" class="file-label">Upload an image</label>
+                        <input id="image"
+                               class="file-input"
+                               type="file"
+                               name="image"
+                               accept="image/png, image/jpeg, image/jpg" />
+                    </div>
+                    <div class="field">
+                        <label for="craft">Craft</label>
+                        <div class="radios">
+                            <label class="radio" for="crochet-for">
+                                <input type="radio" name="craft" value="crochet" id="crochet-for" />
+                                Crochet
+                            </label>
+                            <label class="radio" for="knit-for">
+                                <input type="radio" name="craft" value="knit" id="knit-for" />
+                                Knit
+                            </label>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label for="desc" class="label">Description</label>
+                        <textarea id="desc"
+                                  class="textarea"
+                                  name="desc"
+                                  rows="5"
+                                  placeholder="Write a small description of your project!"></textarea>
+                    </div>
+                    <div class="field">
+                        <label for="hook-needle-size" class="label">Hook/Needle Size(s)</label>
+                        <input id="hook-needle-size"
+                               class="input"
+                               type="text"
+                               placeholder="enter one or more sizes!"
+                               name="hook-needle-size" />
+                    </div>
+                    <div class="field">
+                        <label for="yarn-weight" class="label">Yarn Weight</label>
+                        <input id="yarn-weight" class="input" type="text" name="yarn-weight" />
+                    </div>
+                    <div class="field">
+                        <label for="status" class="label">Status</label>
+                        <div class="select">
+                            <select name="status" id="status">
+                                <option value="just-started">Just started</option>
+                                <option value="in-progress">In progress</option>
+                                <option value="backburner">On the backburner</option>
+                                <option value="frogged">Frogged</option>
+                                <option value="fnished">Finished</option>
+                            </select>
+                            <span class="focus"></span>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label for="progress" class="label">Progress</label>
+                        <progress id="progress" class="progress" max="100"></progress>
+                        <input id="progress-input"
+                               class="input"
+                               type="number"
+                               step="10"
+                               value="10"
+                               min="0"
+                               max="100"
+                               name="progress" />
+                    </div>
+                    <div class="field">
+                        <label for="start-date" class="label">Start Date</label>
+                        <input id="start-date" class="input" type="date" name="start-date" />
+                    </div>
+                    <div class="field">
+                        <label for="end-date" class="label">Goal End Date</label>
+                        <input id="end-date" class="input" type="date" name="end-date" />
+                    </div>
+                </div>
+                <div class="form-btn-ctn">
+                    <button type="submit" class="button">Save Changes</button>
+                </div>
+            </form>
+        </div>
+        <script>
+		document.addEventListener('DOMContentLoaded', () => {
+			let progBarInput = document.querySelector('#progress-input');
+			let progBar = document.querySelector('#progress');
+			progBar.value = progBarInput.value;
 
-			<div class="field">
-				<label
-					for="hook-needle-size"
-					class="label"
-					>Hook/Needle Size</label
-				>
-
-				<input
-					id="hook-needle-size"
-					class="input"
-					type="number"
-					step=".25"
-					min="0"
-					max="20"
-					name="hook-needle-size"
-				/>
-			</div>
-			<div class="field">
-				<label
-					for="yarn-weight"
-					class="label"
-					>Yarn Weight</label
-				>
-
-				<input
-					id="yarn-weight"
-					class="input"
-					type="text"
-					name="yarn-weight"
-				/>
-			</div>
-			<div class="field">
-				<label
-					for="status"
-					class="label"
-					>Status</label
-				>
-				<div class="select">
-					<select
-						name="status"
-						id="status"
-					>
-						<option value="in-progress">In progress</option>
-						<option value="backburner">On the backburner</option>
-						<option value="frogged">Frogged</option>
-						<option value="fnished">Finished</option>
-					</select>
-					<span class="focus"></span>
-				</div>
-			</div>
-			<div class="field">
-				<label
-					for="progress"
-					class="label"
-					>Progress</label
-				>
-				<progress
-					id="progress"
-					class="progress"
-					max="100"
-				></progress>
-
-				<input
-					id="progress-input"
-					class="input"
-					type="number"
-					step="10"
-					value="10"
-					min="0"
-					max="100"
-					name="progress"
-				/>
-			</div>
-			<div class="field">
-				<label
-					for="start-date"
-					class="label"
-					>Start Date</label
-				>
-				<input
-					id="start-date"
-					class="input"
-					type="date"
-					name="start-date"
-				/>
-			</div>
-			<div class="field">
-				<label
-					for="completed"
-					class="checkbox"
-				>
-					<input
-						id="completed"
-						type="checkbox"
-						name="completed"
-					/>
-					Completed
-				</label>
-			</div>
-		</div>
-		<div class="form-btn-ctn">
-			<button
-				type="submit"
-				class="button"
-			>
-				Save Changes
-			</button>
-		</div>
-	</form>
-</div>
-<script>
-	document.addEventListener('DOMContentLoaded', () => {
-		let progBarInput = document.querySelector('#progress-input');
-		let progBar = document.querySelector('#progress');
-		progBar.value = progBarInput.value;
-
-		progBarInput.addEventListener('input', () => {
-			value = progBarInput.value;
-			progBar.value = value;
+			progBarInput.addEventListener('input', () => {
+				value = progBarInput.value;
+				progBar.value = value;
+			});
 		});
-	});
-</script>
-{% endblock %}
+        </script>
+    {% endblock %}

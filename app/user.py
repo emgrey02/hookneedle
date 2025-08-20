@@ -6,6 +6,7 @@ import base64
 from app.auth import login_required
 from app.db import get_db
 import datetime
+from app.helpers import sql_data_to_list_of_dicts
 
 bp = Blueprint('user', __name__)
 
@@ -19,56 +20,32 @@ def profile(id):
         'SELECT * FROM user WHERE id = ?', (id,)
     ).fetchone()
 
-    requests = db.execute('SELECT * FROM friendship JOIN user as u ON user2_id = u.id WHERE user1_id IN (SELECT user2_id FROM friendship) AND user2_id NOT IN (SELECT user1_id FROM friendship) OR user2_id IN (SELECT user2_id FROM friendship) AND user1_id IN (SELECT user1_id FROM friendship)').fetchall()
+    # get request between logged in user and this one, if it exists
+    request = db.execute('SELECT * FROM friendship WHERE approved = ? AND ((user1_id = ? AND user2_id = ?) OR (user1_id = ? AND user2_id = ?))', (False, g.user['id'], id, id, g.user['id'])).fetchone()
 
-    userFriends = db.execute('SELECT * FROM friendship JOIN user as u ON user2_id = u.id WHERE user1_id IN (SELECT user2_id FROM friendship) AND user2_id IN (SELECT user1_id FROM friendship) AND user1_id = ?', (g.user['id'],)).fetchall()
+    # get frienship between logged in user and this one, if it exists
+    friendship = db.execute('SELECT * FROM friendship WHERE approved = ? AND ((user1_id = ? AND user2_id = ?) OR (user1_id = ? AND user2_id = ?))', (True, g.user['id'], id, id, g.user['id'])).fetchone()
 
-    projects = db.execute('SELECT * FROM project WHERE user_id = ?', (id,)).fetchall()
-
-    # determine whether we are friends with this user or if either one has sent a request
-    addFriendBtn = False
-    friends = False
-    # if we are looking at someone else's profile
-    #2 1
-    if g.user['id'] != id:
-        print(id)
-        # for each of our friends
-        if len(userFriends) == 0:
-            print(f'user {g.user['id']} has no friends')
-            addFriendBtn = True
-        else:
-            print(f'user {g.user['id']} has friends')
-            for friend in userFriends:
-                # if we're not friends
-                if friend['user2_id'] == id:
-                    print(f'user {g.user['id']} is friends with user {id}')
-                    friends = True
-    
-    acceptFriendRequest = False
-    friendshipRequested = False
-    
-    if not friends:
-        for request in requests:
-            if request['user1_id'] == id and request['user2_id'] == g.user['id']:
-                print(f'user {id} has sent a request to user {g.user['id']}')
-                acceptFriendRequest = True
-            if request['user1_id'] == g.user['id'] and request['user2_id'] == id:
-                print(f'user {g.user['id']} has sent a request to user {id}')
-                friendshipRequested = True
-        if not addFriendBtn:
-            addFriendBtn = True
+    # get all friends of this user (who owns this profile)
+    userFriends = sql_data_to_list_of_dicts('SELECT * FROM friendship WHERE (user1_id = ? OR user2_id = ?) AND approved = ?', (id, id, True))
 
     profile = db.execute('SELECT * FROM profile WHERE user_id = ?', (id,)).fetchone()
 
     projects = db.execute('SELECT name, id FROM project WHERE user_id = ?', (id,)).fetchall()
 
-    if profile is None:
-        profile = []
-
     if user is None:
         flash('user error')
 
-    return render_template('/user/profile.html', user=user, profile=profile, projects=projects, userFriends=userFriends, addFriendBtn=addFriendBtn, acceptFriendRequest=acceptFriendRequest, friendshipRequested=friendshipRequested, friends=friends)
+    if userFriends:
+        for friend in userFriends:
+            if friend['user1_id'] == id:
+                friend['friendId'] = friend['user2_id']
+                friend['friendUsername'] = db.execute('SELECT username FROM user WHERE id = ?', (friend['user2_id'],)).fetchone()['username']
+            elif friend['user2_id'] == id:
+                friend['friendId'] = friend['user1_id']
+                friend['friendUsername'] = db.execute('SELECT username FROM user WHERE id = ?', (friend['user1_id'],)).fetchone()['username']
+    
+    return render_template('/user/profile.html', thisUser=user, profile=profile, projects=projects, userFriends=userFriends, friendship=friendship, request=request)
 
 @login_required
 @bp.route('/user/profile/edit/<int:id>', methods=['GET', 'POST'])
@@ -123,20 +100,20 @@ def addFriend(id):
     db = get_db()
 
     created = datetime.datetime.today().strftime('%Y-%m-%d')
-    
-    db.execute('INSERT INTO friendship (user1_id, user2_id, created)'
-            'VALUES (?, ?, ?)',
-            (g.user['id'], id, created))
-    db.commit()
+    friendship = None
+
+    friendship = db.execute('SELECT * FROM friendship WHERE (user1_id = ? AND user2_id = ?) OR (user1_id = ? AND user2_id = ?)', (g.user['id'], id, id, g.user['id'])).fetchone()
+
+    if friendship is None:
+        print(f'no requests yet, this is a new request')
+        db.execute('INSERT INTO friendship (user1_id, user2_id, approved, created)'
+                'VALUES (?, ?, ?, ?)',
+                (g.user['id'], id, False, created))
+        db.commit()
+    else:
+        print(f'request exists, update it')
+        db.execute('UPDATE friendship SET approved = ? WHERE (user1_id = ? AND user2_id = ?) OR (user1_id = ? AND user2_id = ?)', (True, g.user['id'], id, id, g.user['id']))
+        db.commit()
     
     
     return redirect(url_for('user.profile', id=id))
-
-@login_required
-@bp.route('/user/<int:id>/friends', methods=['GET'])
-def friends(id):
-    db = get_db()
-
-    friends = db.execute('SELECT * FROM friendship JOIN user as u ON user2_id = u.id WHERE user1_id IN (SELECT user2_id FROM friendship) AND user2_id IN (SELECT user1_id FROM friendship) AND user1_id = ?', (id,)).fetchall()
-
-    return render_template('/user/friends.html', friends=friends)
