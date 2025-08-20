@@ -22,7 +22,7 @@
               href="{{ url_for('static', filename='logo.svg') }}">
         <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
     </head>
-    <body class="inria-sans-regular">
+    <body class="inria-sans-regular flex flex-col h-screen">
         <header>
             <nav class="mx-auto flex flex-col justify-center max-w-7xl items-center p-6 lg:px-8 sm:flex-row sm:justify-between"
                  role="navigation"
@@ -66,7 +66,7 @@
                 </nav>
             {% endif %}
         </header>
-        <main class="mx-auto w-full max-w-6xl flex flex-col gap-2">
+        <main class="mx-auto w-full max-w-6xl flex flex-col gap-2 flex-grow">
             <h1 class="text-center">
                 {% block header %}{% endblock %}
             </h1>
@@ -81,5 +81,8 @@
                 {% block content %}{% endblock %}
             </section>
         </main>
+        <footer class="text-center m-4">
+            © Emma Grey
+        </footer>
     </body>
 </html>

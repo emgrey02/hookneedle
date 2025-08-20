@@ -11,7 +11,10 @@
         {% else %}
             <!-- if logged in user is friends with this user -->
             {% if friendship %}
-                <div class="text-green-500">✓ Your Friend!</div>
+                <div class="flex flex-col">
+                    <div class="text-green-500">✓ Your Friend!</div>
+                    <button id="remove-friend" class="button is-danger">Unfriend</button>
+                </div>
                 <!-- if there is a request between logged in user and this user -->
             {% elif request %}
                 {% if (request['user1_id'] == thisUser.id) %}
@@ -25,20 +28,52 @@
         {% endif %}
     </div>
     <div class="flex flex-col gap-4">
-        <h2>{{ thisUser.username }}</h2>
-        <div class="img-ctn">
-            {% if not profile['image_data'] %}
-                <div class="bg-gray-700 w-full h-full grid place-items-center">
-                    <img height="400"
-                         width="400"
-                         src="{{ url_for('static', filename='logo.svg') }}"
-                         alt="hookneedle logo because no image available" />
+        <div class="grid grid-cols-2 gap-2">
+            <div class="flex flex-col gap-2">
+                <h2>{{ thisUser.username }}</h2>
+                <div class="img-ctn">
+                    {% if not profile['image_data'] %}
+                        <div class="bg-gray-700 w-full h-full grid place-items-center">
+                            <img height="400"
+                                 width="400"
+                                 src="{{ url_for('static', filename='logo.svg') }}"
+                                 alt="hookneedle logo because no image available" />
+                        </div>
+                    {% else %}
+                        <img height="400"
+                             width="400"
+                             src="{{ profile['image_data'] }}"
+                             alt="image of {{ thisUser.username }}" />
+                    {% endif %}
                 </div>
-            {% else %}
-                <img height="400"
-                     width="400"
-                     src="{{ profile['image_data'] }}"
-                     alt="image of {{ thisUser.username }}" />
+            </div>
+            {% if projects %}
+                <div class="flex flex-col gap-2">
+                    <h3>Projects</h3>
+                    <ul class="flex flex-col gap-2">
+                        {% for project in projects %}
+                            <li class="bg-[#2C262C] rounded-[5px] flex justify-between items-center">
+                                <a href="/project/{{ project['id'] }}"
+                                   class="flex items-center gap-4 p-2 w-full">
+                                    <div class="h-12 w-12">
+                                        {% if project['image_blob'] %}
+                                            <img class="aspect-square"
+                                                 src="{{ project['image_blob'] }}"
+                                                 alt="image representing the project called {{ project['name'] }}" />
+                                        {% else %}
+                                            <div class="bg-gray-700 child h-full">
+                                                <img class="aspect-square"
+                                                     src="{{ url_for('static', filename='logo.png') }}"
+                                                     alt="hookneedle logo because no image available" />
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <h4 class="text-center">{{ project['name'] }}</h4>
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
             {% endif %}
         </div>
         <div>
@@ -49,18 +84,6 @@
                 <p>n/a</p>
             {% endif %}
         </div>
-        {% if projects %}
-            <div>
-                <h3>PROJECTS</h3>
-                <ul>
-                    {% for project in projects %}
-                        <li>
-                            <a class="link" href="/project/{{ project.id }}">{{ project.name }}</a>
-                        </li>
-                    {% endfor %}
-                </ul>
-            </div>
-        {% endif %}
         {% if userFriends %}
             <div>
                 <h3>Friends</h3>
@@ -79,11 +102,18 @@
 		friendId = '{{ thisUser.id }}';
 
 		addFriendBtn = document.querySelector('#add-friend');
+        removeFriendBtn = document.querySelector('#remove-friend');
 
 		addFriendBtn?.addEventListener('click', () => {
 			fetch(`/user/addfriend/${friendId}`, {
 				method: 'POST',
-			}).then(()=> window.location.replace(`/user/profile/${friendId}`)).catch((error) => console.error('CAUGHT ERROR ON POST', error));
+			}).then(()=> window.location.reload()).catch((error) => console.error('CAUGHT ERROR ON POST', error));
+		});
+
+        removeFriendBtn?.addEventListener('click', () => {
+			fetch(`/user/removefriend/${friendId}`, {
+				method: 'POST',
+			}).then(()=> window.location.reload()).catch((error) => console.error('CAUGHT ERROR ON POST', error));
 		});
 	});
     </script>

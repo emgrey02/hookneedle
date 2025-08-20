@@ -105,15 +105,23 @@ def addFriend(id):
     friendship = db.execute('SELECT * FROM friendship WHERE (user1_id = ? AND user2_id = ?) OR (user1_id = ? AND user2_id = ?)', (g.user['id'], id, id, g.user['id'])).fetchone()
 
     if friendship is None:
-        print(f'no requests yet, this is a new request')
         db.execute('INSERT INTO friendship (user1_id, user2_id, approved, created)'
                 'VALUES (?, ?, ?, ?)',
                 (g.user['id'], id, False, created))
         db.commit()
     else:
-        print(f'request exists, update it')
         db.execute('UPDATE friendship SET approved = ? WHERE (user1_id = ? AND user2_id = ?) OR (user1_id = ? AND user2_id = ?)', (True, g.user['id'], id, id, g.user['id']))
         db.commit()
     
     
-    return redirect(url_for('user.profile', id=id))
+    return jsonify('friendship successfull')
+
+@login_required
+@bp.route('/user/removefriend/<int:id>', methods=['POST'])
+def removeFriend(id):
+    db = get_db()
+
+    db.execute('DELETE FROM friendship WHERE (user1_id = ? AND user2_id = ?) OR (user1_id = ? AND user2_id = ?)', (id, g.user['id'], g.user['id'], id))
+    db.commit()
+
+    return jsonify('friendship request removed')

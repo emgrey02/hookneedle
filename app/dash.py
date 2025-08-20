@@ -36,7 +36,7 @@ def index():
             print("Operational error occured while getting projects: ", e)
         except db.ProgrammingError as e:
             print("Programming error occured while getting projects: ", e)
-    
+
     if friends:
         for friend in friends:
             if friend['user1_id'] == g.user['id']:
@@ -47,7 +47,7 @@ def index():
                 friend['friendId'] = friend['user1_id']
                 friend['friendUsername'] = db.execute('SELECT username FROM user WHERE id = ?', (friend['user1_id'],)).fetchone()['username']
                 friend['image_data'] = db.execute('SELECT image_data FROM profile WHERE user_id = ?', (friend['user1_id'],)).fetchone()['image_data']
-
+    
     if projects is None:
         return render_template('dash/index.html')
     else:
@@ -59,7 +59,7 @@ def members():
     db = get_db()
 
     try:
-        members = db.execute('SELECT * FROM user JOIN profile ON user.id = profile.user_id').fetchall()
+        members = db.execute('SELECT * FROM user JOIN profile ON user.id = profile.user_id WHERE user.id != ?', (g.user['id'],)).fetchall()
     except db.IntegrityError as e:
         print('Error occured when getting users: ', e)
     
@@ -69,6 +69,8 @@ def members():
 @login_required
 def create():
     error = None
+    image_blob = None
+    upload_blob = None
 
     # get form values, most are optional
     if request.method == 'POST':
@@ -86,8 +88,11 @@ def create():
         endDate = request.form.get('end-date')
 
         
-        image_blob = f'data:{image.mimetype};base64,{base64.b64encode(image.read()).decode("utf-8")}'
-        upload_blob = f'data:{upload.mimetype};base64,{base64.b64encode(upload.read()).decode("utf-8")}'
+        if image:
+            image_blob = f'data:{image.mimetype};base64,{base64.b64encode(image.read()).decode("utf-8")}'
+        
+        if upload:
+            upload_blob = f'data:{upload.mimetype};base64,{base64.b64encode(upload.read()).decode("utf-8")}'
         
 
         db = get_db()
