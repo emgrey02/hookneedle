@@ -42,7 +42,7 @@ def register():
         print(currentUser['id'])
 
         try:
-            db.execute('INSERT INTO profile (user_id) VALUES (?)', (currentUser['id'],))
+            db.execute('INSERT INTO profile (user_id, visibility, bio) VALUES (?, ?, ?)', (currentUser['id'], 'public', ''))
             db.commit()
         except db.IntegrityError:
                 error = f'User {username} is already registered.'

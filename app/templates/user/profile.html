@@ -28,9 +28,10 @@
         {% endif %}
     </div>
     <div class="flex flex-col gap-4">
-        <div class="grid grid-cols-2 gap-2">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <div class="flex flex-col gap-2">
                 <h2>{{ thisUser.username }}</h2>
+                <div>privacy: {{ profile.visibility }}</div>
                 <div class="img-ctn">
                     {% if not profile['image_data'] %}
                         <div class="bg-gray-700 w-full h-full grid place-items-center">
@@ -56,9 +57,9 @@
                                 <a href="/project/{{ project['id'] }}"
                                    class="flex items-center gap-4 p-2 w-full">
                                     <div class="h-12 w-12">
-                                        {% if project['image_blob'] %}
+                                        {% if project['image_data'] %}
                                             <img class="aspect-square"
-                                                 src="{{ project['image_blob'] }}"
+                                                 src="{{ project['image_data'] }}"
                                                  alt="image representing the project called {{ project['name'] }}" />
                                         {% else %}
                                             <div class="bg-gray-700 child h-full">

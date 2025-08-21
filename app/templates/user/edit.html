@@ -31,50 +31,61 @@
 {{ profile.bio }}</textarea>
                 </div>
                 <div class="field">
+                    <label for="privacy" class="label">Privacy</label>
+                    <div class="select">
+                        <select name="privacy" id="privacy">
+                            <option value="private">private</option>
+                            <option value="friends">friends</option>
+                            <option value="public">public</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="field">
                     <button type="submit" class="button is-link">Submit</button>
                 </div>
             </form>
         </div>
         <script>
-	document.addEventListener('DOMContentLoaded', () => {
-		let fileType = '{{ profile["image_mimetype"]}}';
-		let fileBits = '{{ profile["image_data"]}}';
-		let fileName = '{{ profile["image_filename"]}}';
+            document.addEventListener('DOMContentLoaded', () => {
+                let fileBits = '{{ profile["image_data"]}}';
+                let fileName = '{{ profile["image_filename"]}}';
+                const parts = fileBits.split(';base64,');
+                const fileType = parts[0].split(':')[1];
 
-		// https://www.geeksforgeeks.org/javascript/how-to-convert-base64-to-file-in-javascript/
-		convertBase64ToBlob = (base64Image) => {
-			// Split into two parts
-			const base64Data = base64Image.replace(/^data:.+;base64,/, '');
+                
+                // https://www.geeksforgeeks.org/javascript/how-to-convert-base64-to-file-in-javascript/
+                let convertBase64ToBlob = (base64) => {
+                    // Decode Base64 string
+                    const decodedData = atob(parts[1]);
 
-			// Hold the content type
-			const imageType = fileType;
+                    const byteNumbers = new Array(decodedData.length);
 
-			// Decode Base64 string
-			const decodedData = atob(base64Data);
+                    // Insert all character code into uInt8Array
+                    for (let i = 0; i < decodedData.length; ++i) {
+                        byteNumbers[i] = decodedData.charCodeAt(i);
+                    }
 
-			const byteNumbers = new Array(decodedData.length);
+                    // Return BLOB image after conversion
+                    const byteArray = new Uint8Array(byteNumbers);
+                    return new Blob([byteArray], { type: fileType });
+                };
 
-			// Insert all character code into uInt8Array
-			for (let i = 0; i < decodedData.length; ++i) {
-				byteNumbers[i] = decodedData.charCodeAt(i);
-			}
+                
+                if (fileBits != 'None' && fileBits != '') {
+                    blob = convertBase64ToBlob(fileBits);
 
-			// Return BLOB image after conversion
-			const byteArray = new Uint8Array(byteNumbers);
-			return new Blob([byteArray], { type: imageType });
-		};
+                    const fileInput = document.querySelector('#image');
+    
+                    const myFile = new File([blob], fileName, {
+                        type: fileType,
+                        lastModified: new Date(),
+                    });
+    
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(myFile);
+                    fileInput.files = dataTransfer.files;
+                }
 
-		blob = convertBase64ToBlob(fileBits);
-		const fileInput = document.querySelector('#image');
-
-		const myFile = new File([blob], fileName, {
-			type: fileType,
-			lastModified: new Date(),
-		});
-
-		const dataTransfer = new DataTransfer();
-		dataTransfer.items.add(myFile);
-		fileInput.files = dataTransfer.files;
-	});
+            });
         </script>
     {% endblock %}

@@ -8,8 +8,7 @@ DROP TABLE IF EXISTS plan;
 CREATE TABLE user (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   username TEXT UNIQUE NOT NULL,
-  hash TEXT NOT NULL,
-  visibility INTEGER
+  hash TEXT NOT NULL
 );
 
 CREATE TABLE project (
@@ -18,9 +17,9 @@ CREATE TABLE project (
   note_id INTEGER,
   link TEXT,
   upload_filename TEXT,
-  upload_blob TEXT,
+  upload_data TEXT,
   image_filename TEXT,
-  image_blob TEXT,
+  image_data TEXT,
   name TEXT NOT NULL UNIQUE,
   which_craft TEXT NOT NULL,
   desc_small TEXT,
@@ -30,7 +29,7 @@ CREATE TABLE project (
   progress INTEGER,
   start_date TEXT,
   end_date TEXT,
-  visibility INTEGER,
+  visibility TEXT,
   FOREIGN KEY (user_id) REFERENCES user (id),
   FOREIGN KEY (note_id) REFERENCES note (id)
 );
@@ -49,8 +48,8 @@ CREATE TABLE profile (
   user_id INTEGER NOT NULL UNIQUE,
   image_filename TEXT,
   image_data TEXT,
-  image_mimetype TEXT,
   bio TEXT,
+  visibility TEXT,
   FOREIGN KEY (user_id) REFERENCES user (id)
 );
 
@@ -68,4 +67,11 @@ CREATE TABLE plan (
   daily_goal TEXT,
   weekly_goal TEXT,
   FOREIGN KEY (project_id) REFERENCES project (id)
+);
+
+CREATE TABLE todo (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL,
+  content TEXT NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES user (id)
 );

@@ -17,11 +17,12 @@ def index():
     projects = None
     requests = None
     friends = None
+    todos = None
 
     if (g.user):
         try:
             projects = db.execute(
-                'SELECT id, image_blob, image_filename, name'
+                'SELECT id, image_data, image_filename, name'
                 ' FROM project'
                 ' WHERE user_id = ?', (g.user['id'],)
             ).fetchall()
@@ -29,6 +30,8 @@ def index():
             friends = sql_data_to_list_of_dicts('SELECT * FROM friendship WHERE (user1_id = ? OR user2_id = ?) AND approved = ?', (g.user['id'], g.user['id'], True))
 
             requests = db.execute('SELECT * FROM friendship JOIN user ON user1_id = user.id WHERE approved = ? AND user2_id = ?', (False, g.user['id'])).fetchall()
+
+            todos = db.execute('SELECT * FROM todo WHERE user_id = ?', (g.user['id'],)).fetchall()
 
         except db.IntegrityError as e:
             print("Error occured when getting projects: ", e)
@@ -48,10 +51,7 @@ def index():
                 friend['friendUsername'] = db.execute('SELECT username FROM user WHERE id = ?', (friend['user1_id'],)).fetchone()['username']
                 friend['image_data'] = db.execute('SELECT image_data FROM profile WHERE user_id = ?', (friend['user1_id'],)).fetchone()['image_data']
     
-    if projects is None:
-        return render_template('dash/index.html')
-    else:
-        return render_template('dash/index.html', projects=projects, friends=friends, notifs=requests)
+    return render_template('dash/index.html', projects=projects, friends=friends, notifs=requests, todos=todos)
     
 @bp.route('/members', methods=['GET'])
 @login_required
@@ -113,7 +113,7 @@ def create():
         if error is None:
             try:
                 db.execute(
-                    'INSERT INTO project (user_id, name, link, upload_filename, upload_blob, image_filename, image_blob, which_craft, desc_small, hook_needle_size, yarn_weight, status, progress, start_date, end_date)'
+                    'INSERT INTO project (user_id, name, link, upload_filename, upload_data, image_filename, image_data, which_craft, desc_small, hook_needle_size, yarn_weight, status, progress, start_date, end_date)'
                     'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
                     (g.user['id'], name, link, upload.filename, upload_blob, image.filename, image_blob, craft, desc, size, weight, status, progress, startDate, endDate)
                 )
@@ -206,7 +206,7 @@ def edit(id):
         
         try:
             db.execute(
-                'UPDATE project SET user_id = ?, name = ?, link = ?, upload_filename = ?, upload_blob = ?, image_filename = ?, image_blob = ?, which_craft = ?, desc_small = ?, hook_needle_size = ?, yarn_weight = ?, status = ?, progress = ?, start_date = ?, end_date = ? WHERE id = ?',
+                'UPDATE project SET user_id = ?, name = ?, link = ?, upload_filename = ?, upload_data = ?, image_filename = ?, image_data = ?, which_craft = ?, desc_small = ?, hook_needle_size = ?, yarn_weight = ?, status = ?, progress = ?, start_date = ?, end_date = ? WHERE id = ?',
                 (g.user['id'], name, link, upload.filename, upload_blob, image.filename, image_blob, craft, desc, size, weight, status, progress, startDate, endDate, id)
             )
             db.commit()

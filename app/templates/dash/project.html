@@ -16,7 +16,7 @@
         <div class="flex flex-col gap-2">
             {% if g.user['id'] != project['user_id'] %}<div>Owner: {{ project['username'] }}</div>{% endif %}
             <div class="img-ctn">
-                {% if not project['image_blob'] %}
+                {% if not project['image_data'] %}
                     <div class="bg-gray-700 w-full h-full grid place-items-center">
                         <img width="300"
                              height="300"
@@ -26,7 +26,7 @@
                 {% else %}
                     <img width="300"
                          height="300"
-                         src="{{ project['image_blob'] }}"
+                         src="{{ project['image_data'] }}"
                          alt="image of {{ project['name'] }}" />
                 {% endif %}
             </div>
@@ -95,7 +95,8 @@
                     <div class="flex items-end gap-4">
                         <h2>Start Date</h2>
                         {% if project['start_date'] %}
-                            <div>{{ project['start_date'] }}</div>
+                            {% set date = project['start_date'].split("-") %}
+                            <div>{{ date[1] + "-" + date[2] + "-" + date[0] }}</div>
                         {% else %}
                             <div>n/a</div>
                         {% endif %}
@@ -103,7 +104,8 @@
                     <div class="flex items-end gap-4">
                         <h2>Goal End Date</h2>
                         {% if project['end_date'] %}
-                            <div>{{ project['end_date'] }}</div>
+                            {% set date = project['end_date'].split("-") %}
+                            <div>{{ date[1] + "-" + date[2] + "-" + date[0] }}</div>
                         {% else %}
                             <div>n/a</div>
                         {% endif %}
@@ -139,7 +141,7 @@
                 <div id="editor"
                      class="bg-[rgb(var(--bkgd-color))] text-[rgb(var(--text-color))]"></div>
             </div>
-            <div class="flex gap-2 items-center">
+            <div class="flex gap-6 items-center">
                 <button class="button" id="save-btn" type="submit">Save Note</button>
                 <div id="save-message" class="text-green-500"></div>
             </div>

@@ -31,7 +31,7 @@ def profile(id):
 
     profile = db.execute('SELECT * FROM profile WHERE user_id = ?', (id,)).fetchone()
 
-    projects = db.execute('SELECT name, id FROM project WHERE user_id = ?', (id,)).fetchall()
+    projects = db.execute('SELECT name, id, image_data FROM project WHERE user_id = ?', (id,)).fetchall()
 
     if user is None:
         flash('user error')
@@ -57,31 +57,25 @@ def edit(id):
         username = request.form.get('username')
         image = request.files['image']
         bio = request.form.get('bio')
+        visibility = request.form.get('privacy')
 
-        image_b64 = f'data:{image.mimetype};base64,{base64.b64encode(image.read()).decode("utf-8")}'
 
-        profile = db.execute('SELECT * FROM profile WHERE user_id = ?', (id,)).fetchone()
-
-        if profile is None:
-            try:
-                db.execute(
-                    'INSERT INTO profile (user_id, image_filename, image_data, image_mimetype, bio)'
-                    'VALUES (?, ?, ?, ?, ?)',
-                    (id, image.filename, image_b64, image.mimetype, bio)
-                )
-                db.commit()
-            except db.IntegrityError as e:
-                print('Error creating profile: ', e)
+        if image:
+            image_b64 = f'data:{image.mimetype};base64,{base64.b64encode(image.read()).decode("utf-8")}'
         else:
-            try:
-                db.execute('UPDATE user SET username = ? WHERE id = ?', (username, id))
-                db.execute(
-                    'UPDATE profile SET image_filename = ?, image_data = ?, image_mimetype = ?, bio = ? WHERE id = ?',
-                    (image.filename, image_b64, image.mimetype, bio, id)
-                )
-                db.commit()
-            except db.IntegrityError as e:
-                print("Error updating profile: ", e)
+            image.filename = ''
+            image_b64 = ''
+
+    
+        try:
+            db.execute('UPDATE user SET username = ? WHERE id = ?', (username, id))
+            db.execute(
+                'UPDATE profile SET image_filename = ?, image_data = ?, bio = ?, visibility = ? WHERE id = ?',
+                (image.filename, image_b64, bio, visibility, id)
+            )
+            db.commit()
+        except db.IntegrityError as e:
+            print("Error updating profile: ", e)
 
 
         return redirect(url_for('user.profile', id=id))
@@ -125,3 +119,38 @@ def removeFriend(id):
     db.commit()
 
     return jsonify('friendship request removed')
+
+@login_required
+@bp.route('/user/addTodo', methods=['POST'])
+def addTodo():
+    todo = request.json
+
+    db = get_db()
+
+    if todo['id']:
+        try:
+            db.execute('UPDATE todo SET content = ? WHERE id = ?', (todo['input'], todo['id']))
+            db.commit()
+        except db.IntegrityError as e:
+            print("Error updating todo: ", e)
+    else:
+        try:
+            db.execute('INSERT INTO todo (user_id, content) VALUES (?, ?)', (g.user['id'], todo['input']))
+            db.commit()
+        except db.IntegrityError as e:
+                print("Error adding todo: ", e)
+
+
+    return jsonify('todo item added')
+
+@bp.route('/user/deleteTodo/<int:id>', methods=['POST'])
+def deleteTodo(id):
+
+    db = get_db()
+    try:
+        db.execute('DELETE FROM todo WHERE user_id = ? AND id = ?', (g.user['id'], id))
+        db.commit()
+    except db.IntegrityError as e:
+            print("Error deleting todo: ", e)
+
+    return jsonify('todo item successfully deleted')

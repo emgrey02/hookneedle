@@ -1,48 +1,50 @@
-{% extends 'base.html' %} {% block header %} {% block title %}Register{%
-endblock %} {% endblock %} {% block content %}
-<div class="form-ctn">
-	<form
-		method="POST"
-		class="grid gap-4 max-w-[500px]"
-	>
-		<div class="field">
-			<label class="label">Username</label>
+{% extends 'base.html' %}
+{% block header %}
+    {% block title %}
+        Register{%
+        endblock %}
+    {% endblock %}
+    {% block content %}
+        <div class="form-ctn">
+            <form method="post" class="grid gap-4 max-w-[500px]">
+                <div class="field">
+                    <label class="label">Username</label>
+                    <input class="input" type="text" placeholder="Username" name="username" />
+                </div>
+                <div class="field">
+                    <label class="label">Password</label>
+                    <input class="input" type="password" placeholder="Password" name="password" />
+                    <div class="flex gap-2">
+                        <input id="show-password" class="show-btn" type="checkbox">
+                        <label class="text-sm" for="show-password">Show Password</label>
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label">Confirm Password</label>
+                    <input class="input"
+                           type="password"
+                           placeholder="Confirm Password"
+                           name="password-confirm" />
+                    <div class="flex gap-2">
+                        <input id="show-confirm-password" class="show-btn" type="checkbox">
+                        <label class="text-sm" for="show-confirm-password">Show Password</label>
+                    </div>
+                </div>
+                <div class="field">
+                    <button type="submit" class="button is-link">Submit</button>
+                </div>
+            </form>
+        </div>
+        <script>
+			let showPassword = document.querySelectorAll('.show-btn');
 
-			<input
-				class="input"
-				type="text"
-				placeholder="Username"
-				name="username"
-			/>
-		</div>
-		<div class="field">
-			<label class="label">Password</label>
+			showPassword.forEach(btn => {
+				let pwInput = btn.parentElement.previousElementSibling;
+				btn.checked ? pwInput.type = "text" : pwInput.type = "password"
 
-			<input
-				class="input"
-				type="password"
-				placeholder="Password"
-				name="password"
-			/>
-		</div>
-		<div class="field">
-			<label class="label">Confirm Password</label>
-
-			<input
-				class="input"
-				type="password"
-				placeholder="Confirm Password"
-				name="password-confirm"
-			/>
-		</div>
-		<div class="field">
-			<button
-				type="submit"
-				class="button is-link"
-			>
-				Submit
-			</button>
-		</div>
-	</form>
-</div>
-{% endblock %}
+				btn.addEventListener('input', (e) => {
+					btn.checked ? pwInput.type = "text" : pwInput.type = "password"
+					
+			})})
+        </script>
+    {% endblock %}

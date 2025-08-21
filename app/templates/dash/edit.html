@@ -162,15 +162,15 @@
         </div>
         <script>
 	document.addEventListener('DOMContentLoaded', () => {
-		let imageBits = '{{ project["image_blob"]}}';
+		let imageBits = '{{ project["image_data"]}}';
 		let imageFilename = '{{ project["image_filename"]}}';
 		const imageParts = imageBits.split(';base64,');
 		const imageFiletype = imageParts[0].split(':')[1];
 
 
-		let patternBits = '{{ project["upload_blob"]}}';
+		let patternBits = '{{ project["upload_data"]}}';
 		let patternFilename = '{{ project["upload_filename"]}}'
-		const patternParts = imageBits.split(';base64,');
+		const patternParts = patternBits.split(';base64,');
 		const patternFiletype = patternParts[0].split(':')[1];
 
 
@@ -184,7 +184,7 @@
 		});
 
 		// https://www.geeksforgeeks.org/javascript/how-to-convert-base64-to-file-in-javascript/
-		convertBase64ToBlob = (base64) => {
+		let convertBase64ToBlob = (base64) => {
 			// Split into two parts
 			const parts = base64.split(';base64,');
 
@@ -193,7 +193,6 @@
 
 			// Decode Base64 string
 			const decodedData = atob(parts[1]);
-			console.log(decodedData);
 
 			const byteNumbers = new Array(decodedData.length);
 
