@@ -1,14 +1,11 @@
 {% extends 'base.html' %}
 {% block header %}
-    {% block title %}
-        {{ project['name']
-        }}
-    {% endblock %}
+    {% block title %}{{ project['name'] }}{% endblock %}
 {% endblock %}
 {% block content %}
     {% if g.user['id'] == project['user_id'] %}
         <div class="flex w-full justify-center sm:justify-end gap-4">
-            <a class="button" href="{{ url_for('dash.edit', id=project['id']) }}">Edit Project Info</a>
+            <a class="button" href="{{ url_for('project.edit', id=project['id']) }}">Edit Project Info</a>
             <button id="delete-btn" class="button is-danger">Delete Project</button>
         </div>
     {% endif %}
@@ -112,22 +109,34 @@
                     </div>
                 </div>
                 {% if g.user['id'] == project['user_id'] %}
-                    <div class="flex flex-col gap-4 @sm:justify-self-end border-1 border-black h-fit px-4 py-2 rounded-[5px]">
-                        <div class="flex justify-between">
-                            <div class="flex flex-col">
-                                <h3>Plan</h3>
-                                <hr class="w-full">
-                                <div id="days-left"></div>
+                    <div class="flex flex-col gap-2">
+                        <div class="flex flex-col gap-4 @sm:justify-self-end border-1 border-black h-fit px-4 py-2 rounded-[5px]">
+                            <div class="flex justify-between">
+                                <div class="flex flex-col">
+                                    <h3>Plan</h3>
+                                    <hr class="w-full">
+                                    <div id="days-left"></div>
+                                </div>
+                                <a href="/plan/edit">Edit</a>
                             </div>
-                            <a href="/plan/edit">Edit</a>
+                            <div>
+                                <h3>Daily Goal</h3>
+                                <p>n/a</p>
+                            </div>
+                            <div>
+                                <h3>Weekly Goal</h3>
+                                <p>n/a</p>
+                            </div>
                         </div>
-                        <div>
-                            <h3>Daily Goal</h3>
-                            <p>n/a</p>
-                        </div>
-                        <div>
-                            <h3>Weekly Goal</h3>
-                            <p>n/a</p>
+                        <div class="flex flex-col @sm:justify-self-end border-1 border-black h-fit px-4 py-2 rounded-[5px]">
+                            <h3 class="text-center">Timer</h3>
+                            <p class="timerStatus text-center mb-4">It's focus time!</p>
+                            <p id="timer" class="text-4xl text-center mb-4">00:00</p>
+                            <div class="flex gap-1 m-auto">
+                                <button data-time="10" class="button small time">10 min</button>
+                                <button data-time="20" class="button small time">20 min</button>
+                                <button data-time="30" class="button small time">30 min</button>
+                            </div>
                         </div>
                     </div>
                 {% endif %}
@@ -152,7 +161,6 @@
     let startDate = "{{ project['start_date'] }}"
     let endDate = "{{ project['end_date'] }}"
 
-    
     let loggedInUserId = "{{g.user['id']}}"
     let userId = "{{project['user_id']}}"
     
@@ -224,8 +232,37 @@
                     );
             }
         });
+
+        timer = document.querySelector('#timer')
+        timeBtn = document.querySelectorAll('.time')
+        timerStatus = document.querySelector('.timerStatus')
+
+        timeBtn.forEach(btn => btn.addEventListener('click', () => {
+            time = btn.dataset.time;
+
+            let theTimer = setInterval(() => {
+                let minSec = timer.textContent.split(':')
+                let min = +minSec[0];
+                let sec = +minSec[1];
+
+                
+                if (sec < 59) {
+                    sec++;
+                } else {
+                    min++;
+                    sec = 0;
+                }
+                
+                timer.textContent = `${min.toString().length == 1 ? '0' + min : min}:${sec.toString().length == 1 ? '0' + sec : sec}`;
+                
+                if (min == time) {
+                    timerStatus.textContent = "TIME IS UP!!"
+                    timerStatus.style.color = '#66e466';
+                    timer.style.color = '#66e466';
+                    clearInterval(theTimer);
+                }
+            }, 1000)  
+        }))
     }
-
-
     </script>
 {% endblock %}

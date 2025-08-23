@@ -2,8 +2,15 @@
 __version__ = '0.1'
 
 import os
-from flask import Flask
-import cloudinary as Cloud
+from flask import Flask, jsonify, render_template
+
+def page_not_found(e):
+    er = jsonify(str(e))
+    return render_template('404.html', error = er), 404
+
+def internal_server_error(e):
+  er = jsonify(str(e))
+  return render_template('500.html', error = er), 500
 
 def create_app(test_config=None):
     # create and configure the app
@@ -11,10 +18,7 @@ def create_app(test_config=None):
     app.config.from_mapping(
         SECRET_KEY='dev',
         DATABASE=os.path.join(app.instance_path, 'hookneedle.db'),
-        UPLOAD_FOLDER = 'uploads'
     )
-
-    
 
     if test_config is None:
         # load the instance config, if it exists, when not testing
@@ -43,6 +47,10 @@ def create_app(test_config=None):
     from . import user
     app.register_blueprint(user.bp)
 
-    app.add_url_rule("/uploads/<name>", endpoint="dash.download_file", build_only=True)
+    from. import project
+    app.register_blueprint(project.bp)
+
+    app.register_error_handler(404, page_not_found)
+    app.register_error_handler(500, internal_server_error)
     
     return app

@@ -31,7 +31,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <div class="flex flex-col gap-2">
                 <h2>{{ thisUser.username }}</h2>
-                <div>privacy: {{ profile.visibility }}</div>
+                {% if g.user['id'] == thisUser.id %}<div>privacy: {{ profile.visibility }}</div>{% endif %}
                 <div class="img-ctn">
                     {% if not profile['image_data'] %}
                         <div class="bg-gray-700 w-full h-full grid place-items-center">
@@ -48,33 +48,40 @@
                     {% endif %}
                 </div>
             </div>
-            {% if projects %}
-                <div class="flex flex-col gap-2">
-                    <h3>Projects</h3>
-                    <ul class="flex flex-col gap-2">
-                        {% for project in projects %}
-                            <li class="bg-[#2C262C] rounded-[5px] flex justify-between items-center">
-                                <a href="/project/{{ project['id'] }}"
-                                   class="flex items-center gap-4 p-2 w-full">
-                                    <div class="h-12 w-12">
-                                        {% if project['image_data'] %}
-                                            <img class="aspect-square"
-                                                 src="{{ project['image_data'] }}"
-                                                 alt="image representing the project called {{ project['name'] }}" />
-                                        {% else %}
-                                            <div class="bg-gray-700 child h-full">
+            {% if g.user['id'] == thisUser.id or profile.visibility == 'public' %}
+                {% set showProjects = "true" %}
+            {% elif friendship and profile.visibility == 'friends' %}
+                {% set showProjects = "true" %}
+            {% endif %}
+            {% if showProjects == 'true' %}
+                {% if projects %}
+                    <div class="flex flex-col gap-2">
+                        <h3>Projects</h3>
+                        <ul class="flex flex-col gap-2">
+                            {% for project in projects %}
+                                <li class="bg-[#2C262C] rounded-[5px] flex justify-between items-center">
+                                    <a href="/project/{{ project['id'] }}"
+                                       class="flex items-center gap-4 p-2 w-full">
+                                        <div class="h-12 w-12">
+                                            {% if project['image_data'] %}
                                                 <img class="aspect-square"
-                                                     src="{{ url_for('static', filename='logo.png') }}"
-                                                     alt="hookneedle logo because no image available" />
-                                            </div>
-                                        {% endif %}
-                                    </div>
-                                    <h4 class="text-center">{{ project['name'] }}</h4>
-                                </a>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                </div>
+                                                     src="{{ project['image_data'] }}"
+                                                     alt="image representing the project called {{ project['name'] }}" />
+                                            {% else %}
+                                                <div class="bg-gray-700 child h-full">
+                                                    <img class="aspect-square"
+                                                         src="{{ url_for('static', filename='logo.png') }}"
+                                                         alt="hookneedle logo because no image available" />
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        <h4 class="text-center">{{ project['name'] }}</h4>
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
             {% endif %}
         </div>
         <div>

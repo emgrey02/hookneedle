@@ -89,7 +89,7 @@ def edit(id):
     
 @login_required
 @bp.route('/user/addfriend/<int:id>', methods=['POST'])
-def addFriend(id):
+def add_friend(id):
 
     db = get_db()
 
@@ -112,7 +112,7 @@ def addFriend(id):
 
 @login_required
 @bp.route('/user/removefriend/<int:id>', methods=['POST'])
-def removeFriend(id):
+def remove_friend(id):
     db = get_db()
 
     db.execute('DELETE FROM friendship WHERE (user1_id = ? AND user2_id = ?) OR (user1_id = ? AND user2_id = ?)', (id, g.user['id'], g.user['id'], id))
@@ -120,37 +120,4 @@ def removeFriend(id):
 
     return jsonify('friendship request removed')
 
-@login_required
-@bp.route('/user/addTodo', methods=['POST'])
-def addTodo():
-    todo = request.json
 
-    db = get_db()
-
-    if todo['id']:
-        try:
-            db.execute('UPDATE todo SET content = ? WHERE id = ?', (todo['input'], todo['id']))
-            db.commit()
-        except db.IntegrityError as e:
-            print("Error updating todo: ", e)
-    else:
-        try:
-            db.execute('INSERT INTO todo (user_id, content) VALUES (?, ?)', (g.user['id'], todo['input']))
-            db.commit()
-        except db.IntegrityError as e:
-                print("Error adding todo: ", e)
-
-
-    return jsonify('todo item added')
-
-@bp.route('/user/deleteTodo/<int:id>', methods=['POST'])
-def deleteTodo(id):
-
-    db = get_db()
-    try:
-        db.execute('DELETE FROM todo WHERE user_id = ? AND id = ?', (g.user['id'], id))
-        db.commit()
-    except db.IntegrityError as e:
-            print("Error deleting todo: ", e)
-
-    return jsonify('todo item successfully deleted')

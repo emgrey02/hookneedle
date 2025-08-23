@@ -3,7 +3,8 @@ DROP TABLE IF EXISTS project;
 DROP TABLE IF EXISTS note;
 DROP TABLE IF EXISTS profile;
 DROP TABLE IF EXISTS friendship;
-DROP TABLE IF EXISTS plan;
+DROP TABLE IF EXISTS project_plan;
+DROP TABLE IF EXISTS todo;
 
 CREATE TABLE user (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -62,7 +63,7 @@ CREATE TABLE friendship (
   FOREIGN KEY (user2_id) REFERENCES user (id)
 );
 
-CREATE TABLE plan (
+CREATE TABLE project_plan (
   project_id INTEGER NOT NULL,
   daily_goal TEXT,
   weekly_goal TEXT,
@@ -73,5 +74,7 @@ CREATE TABLE todo (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   user_id INTEGER NOT NULL,
   content TEXT NOT NULL,
+  created TEXT NOT NULL,
+  completed BOOLEAN NOT NULL,
   FOREIGN KEY (user_id) REFERENCES user (id)
 );

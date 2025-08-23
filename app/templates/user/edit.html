@@ -52,6 +52,12 @@
                 const parts = fileBits.split(';base64,');
                 const fileType = parts[0].split(':')[1];
 
+                let privacy = "{{ profile['visibility']}}"
+                let selection = document.querySelector(`option[value = '${privacy}']`)
+                selection.selected = true
+
+                console.log(privacy, selection)
+
                 
                 // https://www.geeksforgeeks.org/javascript/how-to-convert-base64-to-file-in-javascript/
                 let convertBase64ToBlob = (base64) => {

@@ -61,6 +61,7 @@ form {
 	display: grid;
 	gap: 0.2em;
 	margin-block-end: 1em;
+	grid-template-areas: 'label' 'input';
 }
 
 .field input,
@@ -73,11 +74,25 @@ form {
 	border-radius: 5px;
 	background-color: rgba(var(--text-color), 0.8);
 	color: rgb(var(--bkgd-color));
+	grid-area: input;
 }
 
 .field input:focus,
 .field textarea:focus {
 	outline: 2px solid rgb(var(--logo-color));
+}
+
+.field .password-visibility {
+	grid-area: input;
+	justify-self: end;
+	width: min-content;
+	padding-inline: 0.5em;
+	cursor: pointer;
+}
+
+.password-visibility:focus {
+	outline: 2px solid rgb(var(--logo-color));
+	border-radius: 5px;
 }
 
 .select {

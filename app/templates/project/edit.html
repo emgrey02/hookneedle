@@ -91,37 +91,11 @@
                         <label for="status" class="label">Status</label>
                         <div class="select">
                             <select name="status" id="status">
-                                {% if project['status'] == 'just-started' %}
-                                    <option value="just-started" selected>Just started</option>
-                                    <option value="in-progress">In progress</option>
-                                    <option value="backburner">On the backburner</option>
-                                    <option value="frogged">Frogged</option>
-                                    <option value="fnished">Finished</option>
-                                {% elif project['status'] == 'in-progress' %}
-                                    <option value="just-started">Just started</option>
-                                    <option value="in-progress" selected>In progress</option>
-                                    <option value="backburner">On the backburner</option>
-                                    <option value="frogged">Frogged</option>
-                                    <option value="fnished">Finished</option>
-                                {% elif project['status'] == 'backburner' %}
-                                    <option value="just-started">Just started</option>
-                                    <option value="in-progress">In progress</option>
-                                    <option value="backburner" selected>On the backburner</option>
-                                    <option value="frogged">Frogged</option>
-                                    <option value="fnished">Finished</option>
-                                {% elif project['status'] == 'frogged' %}
-                                    <option value="just-started">Just started</option>
-                                    <option value="in-progress">In progress</option>
-                                    <option value="backburner">On the backburner</option>
-                                    <option value="frogged" selected>Frogged</option>
-                                    <option value="fnished">Finished</option>
-                                {% else %}
-                                    <option value="just-started">Just started</option>
-                                    <option value="in-progress">In progress</option>
-                                    <option value="backburner">On the backburner</option>
-                                    <option value="frogged">Frogged</option>
-                                    <option value="fnished" selected>Finished</option>
-                                {% endif %}
+                                <option value="just-started">Just started</option>
+                                <option value="in-progress">In progress</option>
+                                <option value="backburner">On the backburner</option>
+                                <option value="frogged">Frogged</option>
+                                <option value="fnished">Finished</option>
                             </select>
                             <span class="focus"></span>
                         </div>
@@ -154,6 +128,16 @@
                                name="end-date"
                                value="{{ project['end_date'] }}" />
                     </div>
+                    <div class="field">
+                        <label for="visibility" class="label">Visibility</label>
+                        <div class="select">
+                            <select name="visibility" id="visibility">
+                                <option value="private">private</option>
+                                <option value="friends">friends</option>
+                                <option value="public">public</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
                 <div class="form-btn-ctn">
                     <button type="submit" class="button">Save Changes</button>
@@ -162,6 +146,14 @@
         </div>
         <script>
 	document.addEventListener('DOMContentLoaded', () => {
+        let privacy = "{{ project['visibility']}}"
+        let selection = document.querySelector(`option[value = '${privacy}']`)
+        selection.selected = true
+
+        let status = "{{ project['status']}}"
+        let statusSelection = document.querySelector(`option[value = '${status}' ]`)
+        statusSelection.selected = true
+        
 		let imageBits = '{{ project["image_data"]}}';
 		let imageFilename = '{{ project["image_filename"]}}';
 		const imageParts = imageBits.split(';base64,');

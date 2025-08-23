@@ -1,13 +1,12 @@
+import datetime
 import os
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, url_for, jsonify
 )
 from werkzeug.exceptions import abort
-import base64
 from app.auth import login_required
 from app.db import get_db
 from app.helpers import sql_data_to_list_of_dicts
-
 
 bp = Blueprint('dash', __name__)
 
@@ -40,6 +39,7 @@ def index():
         except db.ProgrammingError as e:
             print("Programming error occured while getting projects: ", e)
 
+    # get username + image data for your friends
     if friends:
         for friend in friends:
             if friend['user1_id'] == g.user['id']:
@@ -65,166 +65,63 @@ def members():
     
     return render_template('dash/members.html', members=members)
 
-@bp.route('/project/create', methods=['GET', 'POST'])
+
 @login_required
-def create():
-    error = None
-    image_blob = None
-    upload_blob = None
+@bp.route('/dash/completeTodo/<int:id>', methods=['POST'])
+def complete_todo(id):
+    db = get_db()
 
-    # get form values, most are optional
-    if request.method == 'POST':
-        name = request.form.get('name')
-        link = request.form.get('link')
-        image = request.files['image']
-        upload = request.files['upload']
-        craft = request.form.get('craft')
-        desc = request.form.get('desc')
-        size = request.form.get('hook-needle-size')
-        weight = request.form.get('yarn-weight')
-        status = request.form.get('status')
-        progress = request.form.get('progress')
-        startDate = request.form.get('start-date')
-        endDate = request.form.get('end-date')
-
-        
-        if image:
-            image_blob = f'data:{image.mimetype};base64,{base64.b64encode(image.read()).decode("utf-8")}'
-        
-        if upload:
-            upload_blob = f'data:{upload.mimetype};base64,{base64.b64encode(upload.read()).decode("utf-8")}'
-        
-
-        db = get_db()
+    thisTodo = db.execute('SELECT * from todo WHERE id = ?', (id,)).fetchone()
+    if thisTodo['completed']:
         try:
-            getName = db.execute('SELECT name FROM project WHERE name = ?', (name,)).fetchone()
+            db.execute('UPDATE todo SET completed = False WHERE id = ?', (id,))
+            db.commit();
         except db.IntegrityError as e:
-            print("Error getting username: ", e)
-
-        if not craft:
-            error = 'You must select either crochet or knit!'
-
-        if getName:
-            error = 'Project name must be unique!'
-        
-        if not name:
-            error = 'Project must have a name!'
-            
-        if error is None:
-            try:
-                db.execute(
-                    'INSERT INTO project (user_id, name, link, upload_filename, upload_data, image_filename, image_data, which_craft, desc_small, hook_needle_size, yarn_weight, status, progress, start_date, end_date)'
-                    'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                    (g.user['id'], name, link, upload.filename, upload_blob, image.filename, image_blob, craft, desc, size, weight, status, progress, startDate, endDate)
-                )
-            except db.IntegrityError as e:
-                print("Error inserting project into db: ", e)
-
-            db.commit()
-            return redirect(url_for('dash.index')) 
-        else:
-            flash(error)
-            return redirect(url_for('dash.create'))
-        
-    return render_template('dash/create.html')
-
-@bp.route('/project/<int:id>', methods=['GET'])
-def project(id):
-    db = get_db()
-
-    project = db.execute(
-        'SELECT * FROM project JOIN user ON user_id == user.id WHERE project.id = ?', (id,)
-    ).fetchone()
-
-    return render_template('dash/project.html', project=project)
-
-@bp.route('/note/<int:id>', methods=['GET'])
-@login_required
-def getNote(id):
-
-    db = get_db()
-
-    note = db.execute(
-        'SELECT * FROM note WHERE user_id = ? AND project_id = ?', (g.user['id'], id)
-    ).fetchone()
-
-    if note is None:
-        return jsonify('no note available')
-    
+            print("Error toggling todo completion: ", e)
     else:
-        return note['the_note']
-
-@bp.route('/note/<int:id>/create', methods=['POST'])
-@login_required
-def addNote(id):
-    data = request.data
-
-    db = get_db()
-
-    db.execute(
-        'INSERT OR REPLACE INTO note (user_id, project_id, the_note)'
-        'VALUES (?, ?, ?)',
-        (g.user['id'], id, data)
-    )
-
-    db.commit()
-    return redirect(url_for('dash.project', id=id))
-
-@bp.route('/project/edit/<int:id>', methods=['GET', 'POST'])
-@login_required
-def edit(id):
-    db = get_db()
-    error = None
-
-    if (request.method == 'GET'):
-        project = db.execute('SELECT * FROM project WHERE user_id = ? AND id = ?', (g.user['id'], id)).fetchone()
-
-        if project is None:
-            error = 'failed to get project info'
-
-        if error:
-            flash(error)
-            return redirect(url_for('dash.project'))
-        
-        return render_template('dash/edit.html', project=project)
-    else:
-        name = request.form.get('name')
-        link = request.form.get('link')
-        image = request.files['image']
-        upload = request.files['upload']
-        craft = request.form.get('craft')
-        desc = request.form.get('desc')
-        size = request.form.get('hook-needle-size')
-        weight = request.form.get('yarn-weight')
-        status = request.form.get('status')
-        progress = request.form.get('progress')
-        startDate = request.form.get('start-date')
-        endDate = request.form.get('end-date')
-
-        upload_blob = f'data:{upload.mimetype};base64,{base64.b64encode(upload.read()).decode("utf-8")}'
-        image_blob = f'data:{image.mimetype};base64,{base64.b64encode(image.read()).decode("utf-8")}'
-        
         try:
-            db.execute(
-                'UPDATE project SET user_id = ?, name = ?, link = ?, upload_filename = ?, upload_data = ?, image_filename = ?, image_data = ?, which_craft = ?, desc_small = ?, hook_needle_size = ?, yarn_weight = ?, status = ?, progress = ?, start_date = ?, end_date = ? WHERE id = ?',
-                (g.user['id'], name, link, upload.filename, upload_blob, image.filename, image_blob, craft, desc, size, weight, status, progress, startDate, endDate, id)
-            )
+            db.execute('UPDATE todo SET completed = True WHERE id = ?', (id,))
+            db.commit();
+        except db.IntegrityError as e:
+            print("Error toggling todo completion: ", e)
+    
+    return jsonify('toggled todo completion');
+
+
+
+@login_required
+@bp.route('/dash/addTodo', methods=['POST'])
+def add_todo():
+    todo = request.json
+
+    created = datetime.datetime.today().strftime('%Y-%m-%d')
+
+    db = get_db()
+
+    if todo['id']:
+        try:
+            db.execute('UPDATE todo SET content = ? WHERE id = ?', (todo['input'], todo['id']))
             db.commit()
         except db.IntegrityError as e:
-            print("Error updating project: ", e)
+            print("Error updating todo: ", e)
+    else:
+        try:
+            db.execute('INSERT INTO todo (user_id, content, created, completed) VALUES (?, ?, ?, ?)', (g.user['id'], todo['input'], created, False))
+            db.commit()
+        except db.IntegrityError as e:
+                print("Error adding todo: ", e)
 
-        return redirect(url_for('dash.project', id=id))
-    
-@bp.route('/project/delete/<int:id>', methods=['DELETE'])
-@login_required
-def delete(id):
+
+    return jsonify('todo item added')
+
+@bp.route('/dash/deleteTodo/<int:id>', methods=['POST'])
+def delete_todo(id):
+
     db = get_db()
-
     try:
-        db.execute('DELETE FROM project WHERE id = ?', (id,))
+        db.execute('DELETE FROM todo WHERE id = ?', (id,))
         db.commit()
     except db.IntegrityError as e:
-        print('Error deleting project: ', e)
-        return jsonify('project failed to delete')
-    
-    return jsonify('project successfully deleted')
+            print("Error deleting todo: ", e)
+
+    return jsonify('todo item successfully deleted')

@@ -55,7 +55,17 @@
                     <ul class="flex flex-col gap-2 mt-2">
                         {% for todo in todos|reverse %}
                             <li class="flex justify-between items-center ps-2">
-                                <span class="pe-2">{{ todo.content }}</span>
+                                <div class="flex gap-4 items-center">
+                                    <button data-id="{{ todo.id }}"
+                                            class="checkbox cursor-pointer block h-[20px] w-[20px] border-2 border-black rounded-[5px] relative">
+                                        {% if todo.completed %}<span class="check absolute text-white -top-3 left-0 text-2xl">✓</span>{% endif %}
+                                    </button>
+                                    {% if todo.completed %}
+                                        <s class="pe-2 content">{{ todo.content }}</s>
+                                    {% else %}
+                                        <span class="pe-2 content">{{ todo.content }}</span>
+                                    {% endif %}
+                                </div>
                                 <div class="flex gap-2">
                                     <button data-id="{{ todo.id }}" class="button small is-secondary edit-todo">
                                         <svg fill="#000000"
@@ -93,11 +103,11 @@
             </div>
             <div class="flex flex-col w-full p-4 gap-2 border-1 rounded-[5px] border-black h-fit">
                 <h3>Your Projects</h3>
-                <a class="button" href='{{ url_for("dash.create") }}'>Add Project</a>
+                <a class="button" href='{{ url_for("project.create") }}'>Add Project</a>
                 <ul class="flex flex-col gap-2">
                     {% for project in projects %}
                         <li class="bg-[#2C262C] rounded-[5px] flex justify-between items-center">
-                            <a href="/project/{{ project['id'] }}"
+                            <a href="{{ url_for('project.project', id=project['id']) }}"
                                class="flex items-center gap-4 p-2 w-full">
                                 <div class="h-12 w-12">
                                     {% if project['image_data'] %}
@@ -120,7 +130,7 @@
                                 </div>
                                 <div class="dropdown-menu" id="dropdown-menu" role="menu">
                                     <div class="dropdown-content">
-                                        <a href="{{ url_for('dash.edit', id=project.id) }}"
+                                        <a href="{{ url_for('project.edit', id=project.id) }}"
                                            class="dropdown-item">Edit</a>
                                         <button id="delete-btn"
                                                 data-id="{{ project.id }}"
@@ -235,13 +245,13 @@
             addTodoBtn = document.querySelector('#add-item');
             todoInput = document.querySelector('#todo-input')
 
-            addTodoBtn.addEventListener('click', async () => {
+            addTodoBtn?.addEventListener('click', async () => {
                 let input = todoInput.value;
                 let id = todoInput.dataset?.id;
                 !id ? id = null : id = id;
                 let body = {input: input, id: id};
 
-                fetch(`/user/addTodo`, {
+                fetch(`/dash/addTodo`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(body)
@@ -261,7 +271,7 @@
                     let todoId = btn.dataset.id;
                     console.log(todoId)
 
-                    fetch(`/user/deleteTodo/${todoId}`, {
+                    fetch(`/dash/deleteTodo/${todoId}`, {
                         method: 'POST',
                     })
                     .then(()=> window.location.reload())
@@ -272,9 +282,9 @@
 
             editTodoBtn = document.querySelectorAll('.edit-todo');
 
-            editTodoBtn?.forEach(btn => btn.addEventListener('click', async () => {
+            editTodoBtn?.forEach(btn => btn.addEventListener('click', () => {
                 let todoId = btn.dataset.id;
-                let todoItem = btn.parentElement.previousElementSibling;
+                let todoItem = btn.parentElement.previousElementSibling.querySelector('.content');
                 let todoText = todoItem.textContent;
                 addTodoBtn.textContent = '✓';
                 todoItem.parentElement.style.borderLeft = 'thick solid #66e466';
@@ -282,6 +292,19 @@
                 todoInput.select();
                 todoInput.dataset.id = todoId;
                 
+            }))
+
+            checkboxBtn = document.querySelectorAll('.checkbox')
+
+            checkboxBtn?.forEach(btn => btn.addEventListener('click', async () => {
+                todoId = btn.dataset.id;
+                
+                fetch(`/dash/completeTodo/${todoId}`, {
+                        method: 'POST',
+                    })
+                    .then(()=> window.location.reload())
+                    .catch((error) => console.error('CAUGHT ERROR ON POST', error));
+
             }))
         })
     </script>
