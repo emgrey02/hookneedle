@@ -4,6 +4,7 @@
 		"tailwindcss": "^4.1.12"
 	},
 	"scripts": {
-		"watch": "npx tailwindcss -i ./app/static/css/style.css -o ./app/static/css/output-style.css --minify --watch"
+		"watch": "npx tailwindcss -i ./app/static/css/style.css -o ./app/static/css/output-style.css --minify --watch",
+		"start": "waitress-serve --host 127.0.0.1 --call app:create_app"
 	}
 }

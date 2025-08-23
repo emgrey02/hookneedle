@@ -1,13 +1,21 @@
 [build-system]
-requires = ["flit_core >=3.11,<4"]
-build-backend = "flit_core.buildapi"
+requires = ["hatchling >= 1.26"]
+build-backend = "hatchling.build"
 
 [project]
 name = "app"
 authors = [{name = "Emma Grey", email = "emgrey02@gmail.com"}]
 license = "MIT"
+readme = "README.MD"
 license-files = ["LICENSE"]
 dynamic = ["version", "description"]
 
 [project.urls]
-Home = "https://hookneedle.vercel.app"
+Homepage = "https://github.com/emgrey02/hookneedle"
+Issues = "https://github.com/emgrey02/hookneedle/issues"
+
+[tools.setuptools]
+packages = ["app"]
+
+[tool.hatch.version]
+path = "app/__init__.py"
