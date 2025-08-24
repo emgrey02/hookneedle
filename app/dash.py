@@ -94,7 +94,7 @@ def complete_todo(id):
 def add_todo():
     todo = request.json
 
-    created = datetime.datetime.today().strftime('%Y-%m-%d')
+    created = datetime.datetime.today().strftime('%m-%d-%Y')
 
     db = get_db()
 

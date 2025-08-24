@@ -12,14 +12,18 @@
                 <li class="bg-[#2C262C] radius-[5px] rounded-[5px]">
                     <a href="{{ url_for('user.profile', id=member.id) }}"
                        class="flex items-center gap-4 p-2">
-                        <div class="h-12 w-12">
+                        <div class="w-12 h-12">
                             {% if member['image_data'] %}
-                                <img class="aspect-square"
+                                <img class="aspect-square rounded-full"
+                                     width="48px"
+                                     height="48px"
                                      src="{{ member['image_data'] }}"
                                      alt="image representing the user called {{ member['username'] }}" />
                             {% else %}
                                 <div class="bg-gray-700 child h-full">
-                                    <img class="aspect-square"
+                                    <img class="aspect-square rounded-full"
+                                         width="48px"
+                                         height="48px"
                                          src="{{ url_for('static', filename='logo.png') }}"
                                          alt="hookneedle logo because no image available" />
                                 </div>

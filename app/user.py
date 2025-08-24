@@ -41,9 +41,11 @@ def profile(id):
             if friend['user1_id'] == id:
                 friend['friendId'] = friend['user2_id']
                 friend['friendUsername'] = db.execute('SELECT username FROM user WHERE id = ?', (friend['user2_id'],)).fetchone()['username']
+                friend['img'] = db.execute('SELECT image_data FROM profile WHERE user_id = ?', (friend['friendId'],)).fetchone()['image_data']
             elif friend['user2_id'] == id:
                 friend['friendId'] = friend['user1_id']
                 friend['friendUsername'] = db.execute('SELECT username FROM user WHERE id = ?', (friend['user1_id'],)).fetchone()['username']
+                friend['img'] = db.execute('SELECT image_data FROM profile WHERE user_id = ?', (friend['friendId'],)).fetchone()['image_data']
     
     return render_template('/user/profile.html', thisUser=user, profile=profile, projects=projects, userFriends=userFriends, friendship=friendship, request=request)
 
@@ -93,7 +95,7 @@ def add_friend(id):
 
     db = get_db()
 
-    created = datetime.datetime.today().strftime('%Y-%m-%d')
+    created = datetime.datetime.today().strftime('%m-%d-%Y')
     friendship = None
 
     friendship = db.execute('SELECT * FROM friendship WHERE (user1_id = ? AND user2_id = ?) OR (user1_id = ? AND user2_id = ?)', (g.user['id'], id, id, g.user['id'])).fetchone()

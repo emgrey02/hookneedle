@@ -4,6 +4,7 @@ from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
 from werkzeug.security import check_password_hash, generate_password_hash
+import datetime
 
 from app.db import get_db
 
@@ -16,6 +17,7 @@ def register():
         username = request.form['username']
         password = request.form['password']
         passwordConfirm = request.form['password-confirm']
+        joinDate = datetime.datetime.today().strftime('%m-%d-%Y')
         db = get_db()
         error = None
 
@@ -32,7 +34,7 @@ def register():
         if error is None:
             try:
                 db.execute(
-                    'INSERT INTO user (username, hash) VALUES (?, ?)', (username, generate_password_hash(password)),
+                    'INSERT INTO user (username, hash, join_date) VALUES (?, ?, ?)', (username, generate_password_hash(password), joinDate),
                 )
                 db.commit()
             except db.IntegrityError:

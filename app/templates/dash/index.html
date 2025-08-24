@@ -112,11 +112,15 @@
                                 <div class="h-12 w-12">
                                     {% if project['image_data'] %}
                                         <img class="aspect-square"
+                                             width="48px"
+                                             height="48px"
                                              src="{{ project['image_data'] }}"
                                              alt="image representing the project called {{ project['name'] }}" />
                                     {% else %}
                                         <div class="bg-gray-700 child h-full">
                                             <img class="aspect-square"
+                                                 width="48px"
+                                                 height="48px"
                                                  src="{{ url_for('static', filename='logo.png') }}"
                                                  alt="hookneedle logo because no image available" />
                                         </div>
@@ -156,11 +160,15 @@
                                 <div class="h-12 w-12">
                                     {% if friend['image_data'] %}
                                         <img class="aspect-square"
+                                             width="48px"
+                                             height="48px"
                                              src="{{ friend['image_data'] }}"
                                              alt="image representing the user called {{ friend['friendUsername'] }}" />
                                     {% else %}
                                         <div class="bg-gray-700 child h-full">
                                             <img class="aspect-square"
+                                                 width="48px"
+                                                 height="48px"
                                                  src="{{ url_for('static', filename='logo.png') }}"
                                                  alt="hookneedle logo because no image available" />
                                         </div>
@@ -183,20 +191,20 @@
             dropdown.forEach(dropdown => {
                 dropdown.addEventListener('click', () => {
                     currentKey = dropdown.dataset.key;
-                    dropdown.classList.add('is-active'); 
+                    dropdown.classList.add('is-active');
                 })
             })
 
             document.addEventListener('click', async (e) => {
                 let dropdown = document.querySelector(`[data-key = '${currentKey}']`)
                 if (!e.target.closest(`[data-key = '${currentKey}']`)) {
-                    dropdown?.classList.remove('is-active'); 
+                    dropdown?.classList.remove('is-active');
                 }
-                if (e.target.id == 'delete-btn'){
+                if (e.target.id == 'delete-btn') {
                     console.log('delete button clicked')
                     projectId = e.target.dataset.id;
                     if (confirm('Are you sure you want to delete this project?')) {
-                            fetch(`/project/delete/${projectId}`, {
+                        fetch(`/project/delete/${projectId}`, {
                                 method: 'DELETE',
                                 headers: {
                                     'Content-type': 'application/json; charset=UTF-8',
@@ -225,7 +233,7 @@
                     fetch(`/user/addfriend/${friendId}`, {
                             method: 'POST',
                         })
-                        .then(()=> window.location.reload())
+                        .then(() => window.location.reload())
                         .catch((error) => console.error('CAUGHT ERROR ON POST', error));
                 });
             })
@@ -235,10 +243,10 @@
                     let friendId = btn.dataset.id;
 
                     fetch(`/user/removefriend/${friendId}`, {
-                        method: 'POST',
-                    })
-                    .then(()=> window.location.reload())
-                    .catch((error) => console.error('CAUGHT ERROR ON POST', error));
+                            method: 'POST',
+                        })
+                        .then(() => window.location.reload())
+                        .catch((error) => console.error('CAUGHT ERROR ON POST', error));
                 })
             })
 
@@ -249,19 +257,24 @@
                 let input = todoInput.value;
                 let id = todoInput.dataset?.id;
                 !id ? id = null : id = id;
-                let body = {input: input, id: id};
+                let body = {
+                    input: input,
+                    id: id
+                };
 
                 fetch(`/dash/addTodo`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(body)
-                })
-                .then(()=> {
-                    todoInput.value = ''
-                    console.log(input)
-                })
-                .then(()=> window.location.reload())
-                .catch((error) => console.error('CAUGHT ERROR ON POST', error));
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(body)
+                    })
+                    .then(() => {
+                        todoInput.value = ''
+                        console.log(input)
+                    })
+                    .then(() => window.location.reload())
+                    .catch((error) => console.error('CAUGHT ERROR ON POST', error));
             })
 
             deleteTodoBtn = document.querySelectorAll('.delete-todo');
@@ -272,10 +285,10 @@
                     console.log(todoId)
 
                     fetch(`/dash/deleteTodo/${todoId}`, {
-                        method: 'POST',
-                    })
-                    .then(()=> window.location.reload())
-                    .catch((error) => console.error('CAUGHT ERROR ON POST', error));
+                            method: 'POST',
+                        })
+                        .then(() => window.location.reload())
+                        .catch((error) => console.error('CAUGHT ERROR ON POST', error));
 
                 })
             })
@@ -291,18 +304,18 @@
                 todoInput.value = todoText;
                 todoInput.select();
                 todoInput.dataset.id = todoId;
-                
+
             }))
 
             checkboxBtn = document.querySelectorAll('.checkbox')
 
             checkboxBtn?.forEach(btn => btn.addEventListener('click', async () => {
                 todoId = btn.dataset.id;
-                
+
                 fetch(`/dash/completeTodo/${todoId}`, {
                         method: 'POST',
                     })
-                    .then(()=> window.location.reload())
+                    .then(() => window.location.reload())
                     .catch((error) => console.error('CAUGHT ERROR ON POST', error));
 
             }))
