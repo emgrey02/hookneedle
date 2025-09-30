@@ -12,9 +12,20 @@
         </div>
     {% endif %}
     {% if g.user['id'] == project['user_id'] %}
-        <div class="flex w-full justify-center sm:justify-end gap-4">
-            <a class="button" href="{{ url_for('project.edit', id=project['id']) }}">Edit Project Info</a>
-            <button id="delete-btn" class="button is-danger">Delete Project</button>
+        <div id="dropdown" class="has-submenu">
+            <button aria-expanded="false" class="dropdown-btn button small text-xl">≡</button>
+            <ul class="dropdown-list">
+                <li role="none">
+                    <a href="{{ url_for('project.edit', id=project.id) }}" role="menuitem">Edit</a>
+                </li>
+                <li role="none">
+                    <a href=''
+                       id="delete-btn"
+                       class="bg-red-600/40"
+                       data-id="{{ project.id }}"
+                       role="menuitem">Delete</a>
+                </li>
+            </ul>
         </div>
     {% endif %}
     <div class="grid grid-cols-1 sm:grid-cols-[300px_1fr] gap-4">
@@ -53,7 +64,14 @@
                     <p>n/a</p>
                 {% endif %}
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 border border-black p-4 rounded-[5px] h-min gap-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 border-t border-black p-4 h-min gap-y-4">
+                <div class="grid place-items-center gap-2 pb-3 w-full py-2 md:col-span-3 md:m-auto bg-[#2C262C] rounded-t-[5px]">
+                    <h3>Progress</h3>
+                    <progress title="project progress"
+                              class="progress"
+                              value="{{ project['progress'] }}"
+                              max="100"></progress>
+                </div>
                 <div class="flex flex-col">
                     <h3>Craft</h3>
                     <div>{{ project['which_craft'] }}</div>
@@ -78,13 +96,6 @@
                         <div>n/a</div>
                     {% endif %}
                 </div>
-                <div class="grid place-items-center gap-2 w-full py-4 md:col-span-3 md:m-auto bg-[#2C262C]">
-                    <h3>Progress</h3>
-                    <progress title="project progress"
-                              class="progress"
-                              value="{{ project['progress'] }}"
-                              max="100"></progress>
-                </div>
                 <div class="flex flex-col">
                     <h3>Status</h3>
                     {% if project['status'] %}
@@ -101,8 +112,7 @@
                 <div class="flex flex-col">
                     <h3>Start Date</h3>
                     {% if project['start_date'] %}
-                        {% set date = project['start_date'].split("-") %}
-                        <div>{{ date[1] + "-" + date[2] + "-" + date[0] }}</div>
+                        <div>{{ project['start_date'] }}</div>
                     {% else %}
                         <div>n/a</div>
                     {% endif %}
@@ -110,8 +120,7 @@
                 <div class="flex flex-col">
                     <h3>Goal End Date</h3>
                     {% if project['end_date'] %}
-                        {% set date = project['end_date'].split("-") %}
-                        <div>{{ date[1] + "-" + date[2] + "-" + date[0] }}</div>
+                        <div>{{ project['end_date'] }}</div>
                     {% else %}
                         <div>n/a</div>
                     {% endif %}
@@ -128,15 +137,24 @@
                                 <hr class="w-full" />
                                 <div id="days-left"></div>
                             </div>
-                            <a href="/plan/edit">Edit</a>
+                            <a href="/plan/{{ project.id }}/edit"
+                               class="button small is-secondary h-min">Edit</a>
                         </div>
                         <div>
                             <h3>Daily Goal</h3>
-                            <p>n/a</p>
+                            {% if plan.daily_goal %}
+                                <p>{{ plan.daily_goal }}</p>
+                            {% else %}
+                                <p>n/a</p>
+                            {% endif %}
                         </div>
                         <div>
                             <h3>Weekly Goal</h3>
-                            <p>n/a</p>
+                            {% if plan.weekly_goal %}
+                                <p>{{ plan.weekly_goal }}</p>
+                            {% else %}
+                                <p>n/a</p>
+                            {% endif %}
                         </div>
                     </div>
                     <div class="flex flex-col items-center @sm:justify-self-end border-1 border-black h-fit p-4 rounded-[5px]">
@@ -195,7 +213,12 @@
 
             let getNote = async () => {
                 try {
-                    const response = await fetch(`/note/${projectId}`);
+                    const response = await fetch(`/note/${projectId}`, {
+                        method: 'GET',
+                        headers: {
+                            "Content-Type": 'application/json'
+                        }
+                    });
                     if (!response.ok) {
                         throw new Error(`Response status: ${response.status}`);
                     }
@@ -212,6 +235,7 @@
                 .querySelector('#save-btn')
                 .addEventListener('click', async () => {
                     let delta = quill.getContents();
+                    console.log(JSON.stringify(delta))
 
                     fetch(`/note/${projectId}/create`, {
                             method: 'POST',
@@ -227,7 +251,7 @@
                             ).textContent = 'Note Saved!')
                         )
                         .catch((error) =>
-                            console.error('CAUGHT ERROR ON POST', error)
+                            console.error(error)
                         );
 
                     setTimeout(() => {
@@ -306,13 +330,16 @@
                     timerStatus.textContent = 'TIME IS UP!!';
                     timerStatus.style.color = logoColor;
                     timer.style.color = logoColor;
+
                     alarm.play().then(() => {
                         stopTimer();
+                        alert(`Your ${minutes} min timer finished!`)
                         setTimeout(() => {
                             resetTimer();
                             timerBtn.textContent = 'Start';
                         }, 2000)
                     });
+
                 }
 
                 timer.textContent = `${pad(min)}:${pad(sec)}`;

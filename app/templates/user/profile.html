@@ -5,42 +5,8 @@
         endblock %}
     {% endblock %}
     {% block content %}
-        <div class="flex w-full justify-end gap-4">
-            <!-- if this user profile is the current user's profile -->
-            {% if g.user['id'] == thisUser.id %}
-                <a class="button" href="{{ url_for('user.edit', id=thisUser.id) }}">Update Profile</a>
-                <!-- this is another user's profile -->
-            {% else %}
-                <!-- if logged in user is friends with this user -->
-                {% if friendship %}
-                    <div class="flex gap-2 items-center">
-                        <div class="text-green-500">✓ Your Friend!</div>
-                        <div id="dropdown" class="dropdown is-right">
-                            <div class="dropdown-trigger pe-2">
-                                <button class="button" aria-haspopup="true" aria-controls="dropdown-menu">≡</button>
-                            </div>
-                            <div class="dropdown-menu" id="dropdown-menu" role="menu">
-                                <div class="dropdown-content">
-                                    <button id="remove-friend" class="dropdown-item button is-danger">Unfriend</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- if there is a request between logged in user and this user -->
-                {% elif request %}
-                    {% if (request['user1_id'] == thisUser.id) %}
-                        <button id="add-friend" class="button is-secondary">Accept Friend Request</button>
-                        <button class="button is-danger remove-friend">Deny Friend Request</button>
-                    {% elif (request['user1_id'] == g.user['id']) %}
-                        <div class="text-yellow-400">✓ Friendship Requested</div>
-                    {% endif %}
-                {% else %}
-                    <button id="add-friend" class="button">Request Friendship</button>
-                {% endif %}
-            {% endif %}
-        </div>
         <div class="flex flex-col gap-4">
-            <div class="grid gap-2 items-end justify-start">
+            <div class="grid grid-cols-1 sm:grid-cols-2 items-center">
                 <div class="h-[150px] w-[150px]">
                     {% if not profile['image_data'] %}
                         <div class="bg-gray-700 w-full h-full grid place-items-center rounded-full">
@@ -57,14 +23,46 @@
                              alt="image of {{ thisUser.username }}" />
                     {% endif %}
                 </div>
-                <div>
-                    <h2>{{ thisUser.username }}</h2>
-                    <p>joined {{ thisUser['join_date'] }}</p>
-                    {% if g.user['id'] == thisUser.id %}<div>privacy: {{ profile.visibility }}</div>{% endif %}
+                <div class="flex w-full sm:justify-end h-min gap-4">
+                    <!-- if this user profile is the current user's profile -->
+                    {% if g.user['id'] == thisUser.id %}
+                        <a class="button" href="{{ url_for('user.edit', id=thisUser.id) }}">Edit Profile</a>
+                        <!-- this is another user's profile -->
+                    {% else %}
+                        <!-- if logged in user is friends with this user -->
+                        {% if friendship %}
+                            <div class="flex gap-2 items-center">
+                                <div class="text-green-500 -me-24">✓ Your Friend!</div>
+                                <div id="dropdown" class="has-submenu">
+                                    <button aria-expanded="false" class="dropdown-btn button small text-xl">≡</button>
+                                    <ul class="dropdown-list">
+                                        <li role="none" class="grid place-items-center">
+                                            <a href='' class="bg-red-600/40" id="remove-friend" role="menuitem">Unfriend</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <!-- if there is a request between logged in user and this user -->
+                        {% elif request %}
+                            {% if (request['user1_id'] == thisUser.id) %}
+                                <button id="add-friend" class="button is-secondary">Accept Friend Request</button>
+                                <button class="button is-danger remove-friend">Deny Friend Request</button>
+                            {% elif (request['user1_id'] == g.user['id']) %}
+                                <div class="text-yellow-400">✓ Friendship Requested</div>
+                            {% endif %}
+                        {% else %}
+                            <button id="add-friend" class="button">Request Friendship</button>
+                        {% endif %}
+                    {% endif %}
                 </div>
             </div>
+            <div class="p-4 bg-[rgb(var(--dark-bkgd-color))] rounded-t-[5px] flex flex-col gap-2">
+                <h2>{{ thisUser.username }}</h2>
+                <p class="text-sm italic">joined {{ thisUser['join_date'] }}</p>
+                <!-- {% if g.user['id'] == thisUser.id %}<div>privacy: {{ profile.visibility }}</div>{% endif %} -->
+            </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div class="border-t-2 border-[#2C262C] w-full py-4">
+                <div class="border-t-2 border-[#2C262C] w-full p-4">
                     <h3>Bio</h3>
                     {% if profile.bio %}
                         <p>{{ profile.bio }}</p>
@@ -80,7 +78,7 @@
                     endif %}
                     {% if showProjects == 'true' %}
                         {% if projects %}
-                            <div class="flex flex-col gap-2 border rounded-[5px] border-black p-4">
+                            <div class="flex flex-col gap-2 border rounded-b-[5px] border-black p-4">
                                 <h3>Projects</h3>
                                 <ul class="flex flex-col gap-2">
                                     {% for project in projects %}
@@ -114,7 +112,7 @@
                     {% endif %}
                 </div>
                 {% if userFriends and showProjects == 'true' %}
-                    <div class="flex flex-col gap-2">
+                    <div class="flex flex-col gap-2 p-4">
                         <h3>Friends</h3>
                         <ul class="flex gap-4">
                             {% for friend in userFriends %}
@@ -129,7 +127,7 @@
                                                      src="{{ friend['img'] }}"
                                                      alt="image representing the user named {{ friend['friendUsername'] }}" />
                                             {% else %}
-                                                <div class="bg-gray-700 child h-full">
+                                                <div class="bg-gray-700 child h-full rounded-full">
                                                     <img class="aspect-square rounded-full"
                                                          width="48px"
                                                          height="48px"
@@ -148,6 +146,7 @@
             <script>
                 document.addEventListener('DOMContentLoaded', () => {
                     friendId = '{{ thisUser.id }}';
+                    console.log(friendId)
 
                     addFriendBtn = document.querySelector('#add-friend');
                     removeFriendBtn = document.querySelector('#remove-friend');
@@ -155,36 +154,28 @@
                     addFriendBtn?.addEventListener('click', () => {
                         fetch(`/user/addfriend/${friendId}`, {
                                 method: 'POST',
+                                headers: {
+                                    "Content-Type": "application/json; charset=UTF-8"
+                                }
                             })
                             .then(() => window.location.reload())
                             .catch((error) => console.error('CAUGHT ERROR ON POST', error));
                     });
 
                     removeFriendBtn?.addEventListener('click', () => {
-                        fetch(`/user/removefriend/${friendId}`, {
-                                method: 'POST',
-                            })
-                            .then(() => window.location.reload())
-                            .catch((error) => console.error('CAUGHT ERROR ON POST', error));
-                    });
-
-                    let dropdownTrigger = document.querySelectorAll('.dropdown-trigger')
-                    let dropdown = document.querySelectorAll('.dropdown')
-                    currentKey = null
-
-                    dropdown.forEach(dropdown => {
-                        dropdown.addEventListener('click', () => {
-                            currentKey = dropdown.dataset.key;
-                            dropdown.classList.add('is-active');
-                        })
-                    })
-
-                    document.addEventListener('click', async (e) => {
-                        let dropdown = document.querySelector(`#dropdown`)
-                        if (!e.target.closest(`#dropdown`)) {
-                            dropdown?.classList.remove('is-active');
+                        console.log(removeFriendBtn)
+                        if (confirm('Are you sure you want to unfriend this user?')) {
+                            fetch(`/user/removefriend/${friendId}`, {
+                                    method: 'POST',
+                                    headers: {
+                                        "Content-Type": "application/json; charset=UTF-8"
+                                    }
+                                })
+                                .then(() => window.location.reload())
+                                .catch((error) => console.error('CAUGHT ERROR ON POST', error));
                         }
                     });
+
                 });
             </script>
         {% endblock %}

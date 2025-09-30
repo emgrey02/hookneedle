@@ -33,26 +33,24 @@ def register():
 
         if error is None:
             try:
-                db.execute(
-                    'INSERT INTO user (username, hash, join_date) VALUES (?, ?, ?)', (username, generate_password_hash(password), joinDate),
-                )
-                db.commit()
-            except db.IntegrityError:
-                error = f'User {username} is already registered.'
-            
-        currentUser = db.execute('SELECT * FROM user WHERE username = ?', (username,)).fetchone()
-        print(currentUser['id'])
+                response = (db.table("user").insert({"username": username, "hash": generate_password_hash(password), "join_date": joinDate}).execute())
+                print(response)
+            except:
+                error = 'User already exists'
 
-        try:
-            db.execute('INSERT INTO profile (user_id, visibility, bio) VALUES (?, ?, ?)', (currentUser['id'], 'public', ''))
-            db.commit()
-        except db.IntegrityError:
-                error = f'User {username} is already registered.'
+            
+            currentUser = db.table("user").select("*").eq("username", username).limit(1).execute().data[0]
+
+            try:
+                response = db.table("profile").insert({"user_id": currentUser['id'], "visibility": 'public', "bio": ''}).execute()
+            except:
+                error = 'User already exists'
+        
+        if error:
+            flash(error)
         else:
             return redirect(url_for('auth.login'))
         
-        flash(error)
-    
     return render_template('auth/register.html')
 
 @bp.route('/login', methods=['GET', 'POST'])
@@ -63,7 +61,8 @@ def login():
         db = get_db()
         error = None
 
-        user = db.execute('SELECT * FROM user WHERE username = ?', (username,)).fetchone()
+        # user = db.execute('SELECT * FROM user WHERE username = ?', (username,)).fetchone()
+        user = db.table("user").select("*").eq("username", username).limit(1).execute().data[0]
 
         if user is None:
             error = 'Incorrect username.'
@@ -91,7 +90,8 @@ def load_logged_in_user():
     if user_id is None:
         g.user = None
     else:
-        g.user = get_db().execute('SELECT * FROM user WHERE id = ?', (user_id,)).fetchone()
+        # g.user = get_db().execute('SELECT * FROM user WHERE id = ?', (user_id,)).fetchone()
+        g.user = get_db().table("user").select('*').eq('id', user_id).limit(1).execute().data[0]
 
 # Checks if a user is loaded and redirects to login page otherwise
 def login_required(view):

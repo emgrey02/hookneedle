@@ -37,9 +37,8 @@
                     </a>
                     <div class="-ms-4 text-lg me-4">hookneedle</div>
                 </div>
-                <div class="flex items-center justify-center gap-2">
+                <div class="flex items-center gap-4">
                     {% if g.user %}
-                        <span>hello, {{ g.user['username'] }}</span>
                         <a class="button" href='{{ url_for("auth.logout") }}'>Log out</a>
                     {% else %}
                         <a class="button is-primary" href='{{ url_for("auth.register") }}'>
@@ -51,16 +50,36 @@
             </nav>
             {% if g.user %}
                 <nav role="menubar"
-                     class="mx-auto flex justify-center max-w-7xl items-center px-6 py-2 lg:px-8 sm:flex-row sm:justify-end bg-[#2C262C]">
-                    <ul class="flex justify-end gap-4">
-                        <li role="none">
-                            <a href='/' role="menuitem">Dashboard</a>
+                     class="mx-auto flex justify-center max-w-7xl items-center px-6 lg:px-8 sm:flex-row sm:justify-end bg-[#2C262C] py-2">
+                    <ul class="flex justify-end items-center gap-4 h-min">
+                        <li role="none" class="-me-28 z-100">
+                            <a href="/user/profile/{{ g.user['id'] }}"
+                               class="w-fit h-fit"
+                               role="menuitem">
+                                <span class="flex gap-2 items-center">
+                                    <div class="h-[40px] w-[40px]">
+                                        <div class="bg-gray-700 grid place-items-center rounded-full">
+                                            <img class="profile-img rounded-full"
+                                                 height="200"
+                                                 width="200"
+                                                 src="{{ url_for('static', filename='logo.svg') }}"
+                                                 alt="hookneedle logo because no image available" />
+                                        </div>
+                                    </div>
+                                    <div>{{ g.user['username'] }}</div>
+                                </span>
+                            </a>
                         </li>
-                        <li role="none">
-                            <a href="/user/profile/{{ g.user['id'] }}" role="menuitem">Profile</a>
-                        </li>
-                        <li role="none">
-                            <a href='{{ url_for("dash.members") }}' role="menuitem">Members</a>
+                        <li id="dropdown" class="has-submenu">
+                            <button aria-expanded="false" class="dropdown-btn button small text-xl">≡</button>
+                            <ul class="dropdown-list">
+                                <li role="none">
+                                    <a href='/' role="menuitem">Dashboard</a>
+                                </li>
+                                <li role="none">
+                                    <a href='{{ url_for("dash.members") }}' role="menuitem">Members</a>
+                                </li>
+                            </ul>
                         </li>
                     </ul>
                 </nav>
@@ -85,4 +104,43 @@
             © Emma Grey
         </footer>
     </body>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            userId = '{{ g.user["id"]}}'
+            let dropdowns = document.querySelectorAll('#dropdown')
+            let ddBtn = document.querySelectorAll('.dropdown-btn');
+
+            document.addEventListener('click', async (e) => {
+                console.log(e.target.closest('.has-submenu'))
+                if (!e.target.closest(`.has-submenu`)) {
+                    dropdowns.forEach(dd => {
+                        if (dd.classList.contains('open')) {
+                            dd.classList.remove('open')
+                        }
+                    })
+                }
+            });
+
+            ddBtn?.forEach(btn => btn.addEventListener('click', (e) => {
+                e.target.parentElement.className == 'has-submenu' ? e.target.parentElement.classList.add('open') : e.target.parentElement.classList.remove('open');
+            }))
+
+            let profileImg = document.querySelector('.profile-img')
+
+            if (userId) {
+                let getImg = async () => {
+                    fetch(`/user/img`)
+                        .then((res) =>
+                            res.json()
+                        )
+                        .then((img) => {
+                            img != null && (profileImg.src = img);
+                        })
+                        .catch((error) => console.log(error))
+                }
+
+                getImg();
+            }
+        })
+    </script>
 </html>

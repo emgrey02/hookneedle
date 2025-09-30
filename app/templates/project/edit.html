@@ -114,19 +114,11 @@
                     </div>
                     <div class="field">
                         <label for="start-date" class="label">Start Date</label>
-                        <input id="start-date"
-                               class="input"
-                               type="date"
-                               name="start-date"
-                               value="{{ project['start_date'] }}" />
+                        <input id="start-date" class="input" type="date" name="start-date" />
                     </div>
                     <div class="field">
                         <label for="end-date" class="label">Goal End Date</label>
-                        <input id="end-date"
-                               class="input"
-                               type="date"
-                               name="end-date"
-                               value="{{ project['end_date'] }}" />
+                        <input id="end-date" class="input" type="date" name="end-date" />
                     </div>
                     <div class="field">
                         <label for="visibility" class="label">Visibility</label>
@@ -145,80 +137,89 @@
             </form>
         </div>
         <script>
-	document.addEventListener('DOMContentLoaded', () => {
-        let privacy = "{{ project['visibility']}}"
-        let selection = document.querySelector(`option[value = '${privacy}']`)
-        selection.selected = true
+            document.addEventListener('DOMContentLoaded', () => {
+                let startDate = "{{project['start_date']}}"
+                let endDate = "{{project['end_date']}}"
+                let startSplit = startDate.split('-');
+                let endSplit = endDate.split('-');
+                document.querySelector('#start-date').value = `${startSplit[2]}-${startSplit[0]}-${startSplit[1]}`;
+                document.querySelector('#end-date').value = `${endSplit[2]}-${endSplit[0]}-${endSplit[1]}`
 
-        let status = "{{ project['status']}}"
-        let statusSelection = document.querySelector(`option[value = '${status}' ]`)
-        statusSelection.selected = true
-        
-		let imageBits = '{{ project["image_data"]}}';
-		let imageFilename = '{{ project["image_filename"]}}';
-		const imageParts = imageBits.split(';base64,');
-		const imageFiletype = imageParts[0].split(':')[1];
+                let privacy = "{{ project['visibility']}}"
+                let selection = document.querySelector(`option[value = '${privacy}']`)
+                selection.selected = true
+
+                let status = "{{ project['status']}}"
+                let statusSelection = document.querySelector(`option[value = '${status}' ]`)
+                statusSelection.selected = true
+
+                let imageBits = '{{ project["image_data"]}}';
+                let imageFilename = '{{ project["image_filename"]}}';
+                const imageParts = imageBits.split(';base64,');
+                const imageFiletype = imageParts[0].split(':')[1];
 
 
-		let patternBits = '{{ project["upload_data"]}}';
-		let patternFilename = '{{ project["upload_filename"]}}'
-		const patternParts = patternBits.split(';base64,');
-		const patternFiletype = patternParts[0].split(':')[1];
+                let patternBits = '{{ project["upload_data"]}}';
+                let patternFilename = '{{ project["upload_filename"]}}'
+                const patternParts = patternBits.split(';base64,');
+                const patternFiletype = patternParts[0].split(':')[1];
 
 
-		let progBarInput = document.querySelector('#progress-input');
-		let progBar = document.querySelector('#progress');
-		progBar.value = progBarInput.value;
+                let progBarInput = document.querySelector('#progress-input');
+                let progBar = document.querySelector('#progress');
+                progBar.value = progBarInput.value;
 
-		progBarInput.addEventListener('input', () => {
-			value = progBarInput.value;
-			progBar.value = value;
-		});
+                progBarInput.addEventListener('input', () => {
+                    value = progBarInput.value;
+                    progBar.value = value;
+                });
 
-		// https://www.geeksforgeeks.org/javascript/how-to-convert-base64-to-file-in-javascript/
-		let convertBase64ToBlob = (base64) => {
-			// Split into two parts
-			const parts = base64.split(';base64,');
+                // https://www.geeksforgeeks.org/javascript/how-to-convert-base64-to-file-in-javascript/
+                let convertBase64ToBlob = (base64) => {
+                    // Split into two parts
+                    const parts = base64.split(';base64,');
 
-			// Hold the content type
-			const fileType = parts[0].split(':')[1];
+                    // Hold the content type
+                    const fileType = parts[0].split(':')[1];
 
-			// Decode Base64 string
-			const decodedData = atob(parts[1]);
+                    // Decode Base64 string
+                    const decodedData = atob(parts[1]);
 
-			const byteNumbers = new Array(decodedData.length);
+                    const byteNumbers = new Array(decodedData.length);
 
-			// Insert all character code into uInt8Array
-			for (let i = 0; i < decodedData.length; ++i) {
-				byteNumbers[i] = decodedData.charCodeAt(i);
-			}
+                    // Insert all character code into uInt8Array
+                    for (let i = 0; i < decodedData.length; ++i) {
+                        byteNumbers[i] = decodedData.charCodeAt(i);
+                    }
 
-			// Return BLOB image after conversion
-			const byteArray = new Uint8Array(byteNumbers);
-			return new Blob([byteArray], { type: fileType });
-		};
+                    // Return BLOB image after conversion
+                    const byteArray = new Uint8Array(byteNumbers);
+                    return new Blob([byteArray], {
+                        type: fileType
+                    });
+                };
 
-		imageBlob = convertBase64ToBlob(imageBits);
-		patternBlob = convertBase64ToBlob(patternBits);
+                imageBlob = convertBase64ToBlob(imageBits);
+                patternBlob = convertBase64ToBlob(patternBits);
 
-		const fileInput = document.querySelector('#image');
-		const patternInput = document.querySelector('#upload');
+                const fileInput = document.querySelector('#image');
+                const patternInput = document.querySelector('#upload');
 
-		const myImageFile = new File([imageBlob], imageFilename, {
-			type: imageFiletype
-		});
+                const myImageFile = new File([imageBlob], imageFilename, {
+                    type: imageFiletype
+                });
 
-		const myPatternFile = new File([patternBlob], patternFilename, {
-			type: patternFiletype
-		})
+                const myPatternFile = new File([patternBlob], patternFilename, {
+                    type: patternFiletype
+                })
 
-		const dataTransfer = new DataTransfer();
-		dataTransfer.items.add(myImageFile);
-		fileInput.files = dataTransfer.files;
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(myImageFile);
+                fileInput.files = dataTransfer.files;
 
-		const dataTransfer2 = new DataTransfer();
-		dataTransfer2.items.add(myPatternFile);
-		patternInput.files = dataTransfer2.files;
-	});
+                const dataTransfer2 = new DataTransfer();
+                dataTransfer2.items.add(myPatternFile);
+                patternInput.files = dataTransfer2.files;
+            });
         </script>
     {% endblock %}

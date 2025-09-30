@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block header %}
+    {% block title %}Edit Project Goals{% endblock %}
+{% endblock %}
+{% block content %}
+    <div class="form-ctn">
+        <form method="post" class="grid gap-4 max-w-[500px]">
+            <div class="field">
+                <label class="label" for="daily">Daily Goal</label>
+                <input id="daily"
+                       class="input"
+                       type="text"
+                       name="daily"
+                       value="{{ plan.daily_goal }}" />
+            </div>
+            <div class="field">
+                <label class="label" for="weekly">Weekly Goal</label>
+                <input id="weekly"
+                       class="input"
+                       type="text"
+                       name="weekly"
+                       value="{{ plan.weekly_goal }}" />
+            </div>
+            <div class="field">
+                <button type="submit" class="button">Submit</button>
+            </div>
+        </form>
+    </div>
+{% endblock %}

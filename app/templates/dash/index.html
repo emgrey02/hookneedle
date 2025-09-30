@@ -16,7 +16,7 @@
         </div>
     {% else %}
         <h2>Your Dashboard</h2>
-        <div class="flex flex-col w-full h-auto p-4 gap-2 border-1 rounded-[5px] border-black">
+        <div class="flex flex-col w-full h-auto p-4 gap-2 border-1 rounded-t-[5px] border-black">
             <h3>Notifications</h3>
             {% if not notifs %}
                 <div>You have no notifications.</div>
@@ -30,7 +30,7 @@
                                     data-id="{{ notif['user1_id'] }}">Deny</button>
                             <span>
                                 <a class="link"
-                                   href="{{ url_for('user.profile', id=notif['user1_id']) }}">{{ notif.username }}</a>
+                                   href="{{ url_for('user.profile', id=notif['user1_id']) }}">{{ notif.user.username }}</a>
                                 wants to be your friend
                             </span>
                         </li>
@@ -39,7 +39,7 @@
             {% endif %}
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div class="flex flex-col w-full p-4 gap-2 border-1 rounded-[5px] border-black h-fit">
+            <div class="flex flex-col w-full p-4 gap-2 border-1 border-black h-fit">
                 <h3>To-dos</h3>
                 <div class="flex items-stretch w-full gap-2">
                     <input placeholder="What to do?"
@@ -55,7 +55,7 @@
                     <ul class="flex flex-col gap-2 mt-2">
                         {% for todo in todos|reverse %}
                             <li class="flex justify-between items-center ps-2">
-                                <div class="flex gap-4 items-center">
+                                <div class="grid grid-cols-[20px_auto] gap-4 items-center">
                                     <button data-id="{{ todo.id }}"
                                             class="checkbox cursor-pointer block h-[20px] w-[20px] border-2 border-black rounded-[5px] relative">
                                         {% if todo.completed %}<span class="check absolute text-white -top-3 left-0 text-2xl">✓</span>{% endif %}
@@ -101,72 +101,74 @@
                     </ul>
                 {% endif %}
             </div>
-            <div class="flex flex-col w-full p-4 gap-2 border-1 rounded-[5px] border-black h-fit">
+            <div class="flex flex-col w-full p-4 gap-2 border-1 border-black h-fit">
                 <h3>Your Projects</h3>
                 <a class="button" href='{{ url_for("project.create") }}'>Add Project</a>
-                <ul class="flex flex-col gap-2">
-                    {% for project in projects %}
-                        <li class="bg-[#2C262C] rounded-[5px] flex justify-between items-center">
-                            <a href="{{ url_for('project.project', id=project['id']) }}"
-                               class="flex items-center gap-4 p-2 w-full">
-                                <div class="h-12 w-12">
-                                    {% if project['image_data'] %}
-                                        <img class="aspect-square"
-                                             width="48px"
-                                             height="48px"
-                                             src="{{ project['image_data'] }}"
-                                             alt="image representing the project called {{ project['name'] }}" />
-                                    {% else %}
-                                        <div class="bg-gray-700 child h-full">
+                {% if projects %}
+                    <ul class="flex flex-col gap-2">
+                        {% for project in projects %}
+                            <li class="bg-[#2C262C] rounded-[5px] flex justify-between items-center">
+                                <a href="{{ url_for('project.project', id=project['id']) }}"
+                                   class="flex items-center gap-4 p-2 w-full">
+                                    <div class="h-12 w-12">
+                                        {% if project['image_data'] %}
                                             <img class="aspect-square"
                                                  width="48px"
                                                  height="48px"
-                                                 src="{{ url_for('static', filename='logo.png') }}"
-                                                 alt="hookneedle logo because no image available" />
+                                                 src="{{ project['image_data'] }}"
+                                                 alt="image representing the project called {{ project['name'] }}" />
+                                        {% else %}
+                                            <div class="bg-gray-700 child h-full">
+                                                <img class="aspect-square"
+                                                     width="48px"
+                                                     height="48px"
+                                                     src="{{ url_for('static', filename='logo.png') }}"
+                                                     alt="hookneedle logo because no image available" />
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <h4 class="text-center">{{ project['name'] }}</h4>
+                                </a>
+                                <div class="dropdown is-right" data-key="{{ project.id }}">
+                                    <div class="dropdown-trigger pe-2">
+                                        <button class="button" aria-haspopup="true" aria-controls="dropdown-menu">≡</button>
+                                    </div>
+                                    <div class="dropdown-menu" id="dropdown-menu" role="menu">
+                                        <div class="dropdown-content">
+                                            <a href="{{ url_for('project.edit', id=project.id) }}"
+                                               class="dropdown-item">Edit</a>
+                                            <button id="delete-btn"
+                                                    data-id="{{ project.id }}"
+                                                    class="dropdown-item button is-danger">Delete</button>
                                         </div>
-                                    {% endif %}
-                                </div>
-                                <h4 class="text-center">{{ project['name'] }}</h4>
-                            </a>
-                            <div class="dropdown is-right" data-key="{{ project.id }}">
-                                <div class="dropdown-trigger pe-2">
-                                    <button class="button" aria-haspopup="true" aria-controls="dropdown-menu">≡</button>
-                                </div>
-                                <div class="dropdown-menu" id="dropdown-menu" role="menu">
-                                    <div class="dropdown-content">
-                                        <a href="{{ url_for('project.edit', id=project.id) }}"
-                                           class="dropdown-item">Edit</a>
-                                        <button id="delete-btn"
-                                                data-id="{{ project.id }}"
-                                                class="dropdown-item button is-danger">Delete</button>
                                     </div>
                                 </div>
-                            </div>
-                        </li>
-                    {% endfor %}
-                </ul>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
             </div>
         </div>
-        <div class="flex flex-col w-full p-4 gap-2 border-1 rounded-[5px] border-black h-fit">
+        <div class="flex flex-col w-full p-4 gap-2 border-1 rounded-b-[5px] border-black h-fit">
             <h3>Friends</h3>
             {% if not friends %}
                 <div>You don't have any friends yet!</div>
             {% else %}
-                <ul class="flex flex-col gap-2">
+                <ul class="flex gap-4">
                     {% for friend in friends %}
-                        <li class="bg-[#2C262C] radius-[5px] rounded-[5px]">
-                            <a href="{{ url_for('user.profile', id=friend.friendId) }}"
-                               class="flex items-center gap-4 p-2">
+                        <li>
+                            <a href="{{ url_for('user.profile', id=friend.friendId) }}">
                                 <div class="h-12 w-12">
                                     {% if friend['image_data'] %}
-                                        <img class="aspect-square"
+                                        <img class="aspect-square rounded-full"
                                              width="48px"
                                              height="48px"
+                                             title="{{ friend['friendUsername'] }}"
                                              src="{{ friend['image_data'] }}"
-                                             alt="image representing the user called {{ friend['friendUsername'] }}" />
+                                             alt="image representing the user named {{ friend['friendUsername'] }}" />
                                     {% else %}
                                         <div class="bg-gray-700 child h-full">
-                                            <img class="aspect-square"
+                                            <img class="aspect-square rounded-full"
                                                  width="48px"
                                                  height="48px"
                                                  src="{{ url_for('static', filename='logo.png') }}"
@@ -174,7 +176,6 @@
                                         </div>
                                     {% endif %}
                                 </div>
-                                <h4>{{ friend.friendUsername }}</h4>
                             </a>
                         </li>
                     {% endfor %}
@@ -232,6 +233,9 @@
 
                     fetch(`/user/addfriend/${friendId}`, {
                             method: 'POST',
+                            headers: {
+                                "Content-Type": "application/json"
+                            }
                         })
                         .then(() => window.location.reload())
                         .catch((error) => console.error('CAUGHT ERROR ON POST', error));
@@ -244,6 +248,9 @@
 
                     fetch(`/user/removefriend/${friendId}`, {
                             method: 'POST',
+                            headers: {
+                                "Content-Type": "application/json"
+                            }
                         })
                         .then(() => window.location.reload())
                         .catch((error) => console.error('CAUGHT ERROR ON POST', error));
@@ -253,7 +260,7 @@
             addTodoBtn = document.querySelector('#add-item');
             todoInput = document.querySelector('#todo-input')
 
-            addTodoBtn?.addEventListener('click', async () => {
+            let addTheTodo = async () => {
                 let input = todoInput.value;
                 let id = todoInput.dataset?.id;
                 !id ? id = null : id = id;
@@ -275,6 +282,13 @@
                     })
                     .then(() => window.location.reload())
                     .catch((error) => console.error('CAUGHT ERROR ON POST', error));
+            }
+
+            addTodoBtn?.addEventListener('click', addTheTodo)
+            todoInput?.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    addTheTodo();
+                }
             })
 
             deleteTodoBtn = document.querySelectorAll('.delete-todo');
@@ -286,6 +300,9 @@
 
                     fetch(`/dash/deleteTodo/${todoId}`, {
                             method: 'POST',
+                            headers: {
+                                "Content-Type": "application/json"
+                            }
                         })
                         .then(() => window.location.reload())
                         .catch((error) => console.error('CAUGHT ERROR ON POST', error));
@@ -314,6 +331,9 @@
 
                 fetch(`/dash/completeTodo/${todoId}`, {
                         method: 'POST',
+                        headers: {
+                            "Content-Type": "application/json"
+                        }
                     })
                     .then(() => window.location.reload())
                     .catch((error) => console.error('CAUGHT ERROR ON POST', error));

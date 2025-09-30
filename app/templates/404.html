@@ -1,7 +1,10 @@
-{% extends "layout.html" %}
-{% block title %}Page Not Found{% endblock %}
-{% block body %}
-    <h1>Page Not Found</h1>
-    <p>What you were looking for is just not there.</p>
-    <a href='{{ url_for("dash.index") }}'>go somewhere nice</a>
+{% extends "base.html" %}
+{% block header %}
+    {% block title %}Page Not Found{% endblock %}
+{% endblock %}
+{% block content %}
+    <div class="text-center text-2xl flex flex-col gap-4">
+        <p>What you were looking for is just not there.</p>
+        <a href='{{ url_for("dash.index") }}' class="link">go somewhere nice</a>
+    </div>
 {% endblock %}

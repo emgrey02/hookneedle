@@ -1,34 +1,31 @@
-import os
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, url_for, jsonify
 )
-from werkzeug.exceptions import abort
 import base64
 from app.auth import login_required
 from app.db import get_db
-from app.helpers import sql_data_to_list_of_dicts
+import datetime;
+from postgrest.exceptions import APIError
 
 bp = Blueprint('project', __name__)
 
 @bp.route('/project/<int:id>', methods=['GET'])
 def project(id):
     db = get_db()
+    plan = None
 
-    print(id)
+    project = db.table('project').select('*').eq("id", id).execute().data[0]
 
-    project = db.execute(
-        "SELECT * FROM project JOIN user ON project.user_id = user.id WHERE project.id = ?", (id,)
-    ).fetchone()
+    plan = db.table('project_plan').select('*').eq("project_id", id).execute().data[0]
     
-
-    return render_template('project/project.html', project=project)
+    return render_template('project/project.html', project=project, plan=plan)
 
 @bp.route('/project/create', methods=['GET', 'POST'])
 @login_required
 def create():
     error = None
-    image_blob = None
-    upload_blob = None
+    image_data = None
+    upload_data = None
 
     # get form values, most are optional
     if request.method == 'POST':
@@ -46,39 +43,37 @@ def create():
         endDate = request.form.get('end-date')
         visibility = request.form.get('visibility')
 
-        if image:
-            image_blob = f'data:{image.mimetype};base64,{base64.b64encode(image.read()).decode("utf-8")}'
-        
-        if upload:
-            upload_blob = f'data:{upload.mimetype};base64,{base64.b64encode(upload.read()).decode("utf-8")}'
-        
-
         db = get_db()
-        try:
-            getName = db.execute('SELECT name FROM project WHERE name = ?', (name,)).fetchone()
-        except db.IntegrityError as e:
-            print("Error getting username: ", e)
+
+        getName = db.table('project').select('name').eq("name", name).execute().data
 
         if not craft:
             error = 'You must select either crochet or knit!'
 
-        if getName:
+        if getName != []:
             error = 'Project name must be unique!'
         
         if not name:
             error = 'Project must have a name!'
+
+        if startDate:
+            startDate = datetime.datetime.strptime(startDate, '%Y-%m-%d').strftime('%m-%d-%Y')
+        
+        if endDate:
+            endDate = datetime.datetime.strptime(endDate, '%Y-%m-%d').strftime('%m-%d-%Y');
+
+        if image:
+            image_data = f'data:{image.mimetype};base64,{base64.b64encode(image.read()).decode("utf-8")}'
+        
+        if upload:
+            upload_data = f'data:{upload.mimetype};base64,{base64.b64encode(upload.read()).decode("utf-8")}'
             
         if error is None:
             try:
-                db.execute(
-                    'INSERT INTO project (user_id, name, link, upload_filename, upload_data, image_filename, image_data, which_craft, desc_small, hook_needle_size, yarn_weight, status, progress, start_date, end_date, visibility)'
-                    'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                    (g.user['id'], name, link, upload.filename, upload_blob, image.filename, image_blob, craft, desc, size, weight, status, progress, startDate, endDate, visibility)
-                )
-            except db.IntegrityError as e:
+                db.table('project').insert({'user_id': g.user['id'], "name": name, "link": link, "upload_filename": upload.filename, "upload_data": upload_data, "image_filename": image.filename, "image_data": image_data, "which_craft": craft, "desc_small": desc, "hook_needle_size": size, "yarn_weight": weight, "status": status, "progress": progress, "start_date": startDate, "end_date": endDate, "visibility": visibility}).execute()
+            except APIError as e:
                 print("Error inserting project into db: ", e)
 
-            db.commit()
             return redirect(url_for('dash.index')) 
         else:
             flash(error)
@@ -92,11 +87,13 @@ def create():
 def edit(id):
     db = get_db()
     error = None
+    image_data = None
+    upload_data = None
 
     if (request.method == 'GET'):
-        project = db.execute('SELECT * FROM project WHERE user_id = ? AND id = ?', (g.user['id'], id)).fetchone()
+        project = db.table('project').select('*').eq("user_id", g.user['id']).eq("id", id).execute().data[0]
 
-        if project is None:
+        if project == []:
             error = 'failed to get project info'
 
         if error:
@@ -119,16 +116,22 @@ def edit(id):
         endDate = request.form.get('end-date')
         visibility = request.form.get('visibility')
 
-        upload_blob = f'data:{upload.mimetype};base64,{base64.b64encode(upload.read()).decode("utf-8")}'
-        image_blob = f'data:{image.mimetype};base64,{base64.b64encode(image.read()).decode("utf-8")}'
+        if upload:
+            upload_data = f'data:{upload.mimetype};base64,{base64.b64encode(upload.read()).decode("utf-8")}'
+
+        if image:
+            image_data = f'data:{image.mimetype};base64,{base64.b64encode(image.read()).decode("utf-8")}'
         
+        if startDate:
+            startDate = datetime.datetime.strptime(startDate, '%Y-%m-%d').strftime('%m-%d-%Y')
+        
+        if endDate:
+            endDate = datetime.datetime.strptime(endDate, '%Y-%m-%d').strftime('%m-%d-%Y')
+
         try:
-            db.execute(
-                'UPDATE project SET user_id = ?, name = ?, link = ?, upload_filename = ?, upload_data = ?, image_filename = ?, image_data = ?, which_craft = ?, desc_small = ?, hook_needle_size = ?, yarn_weight = ?, status = ?, progress = ?, start_date = ?, end_date = ?, visibility = ? WHERE id = ?',
-                (g.user['id'], name, link, upload.filename, upload_blob, image.filename, image_blob, craft, desc, size, weight, status, progress, startDate, endDate, visibility, id)
-            )
-            db.commit()
-        except db.IntegrityError as e:
+            db.table('project').insert({'user_id': g.user['id'], "name": name, "link": link, "upload_filename": upload.filename, "upload_data": upload_data, "image_filename": image.filename, "image_data": image_data, "which_craft": craft, "desc_small": desc, "hook_needle_size": size, "yarn_weight": weight, "status": status, "progress": progress, "start_date": startDate, "end_date": endDate, "visibility": visibility}).eq("id", id).execute()
+
+        except APIError as e:
             print("Error updating project: ", e)
 
         return redirect(url_for('project.project', id=id))
@@ -139,9 +142,8 @@ def delete(id):
     db = get_db()
 
     try:
-        db.execute('DELETE FROM project WHERE id = ?', (id,))
-        db.commit()
-    except db.IntegrityError as e:
+        db.table('project').delete().eq("id", id).execute()
+    except APIError as e:
         print('Error deleting project: ', e)
         return jsonify('project failed to delete')
     
@@ -153,11 +155,9 @@ def get_note(id):
 
     db = get_db()
 
-    note = db.execute(
-        'SELECT * FROM note WHERE user_id = ? AND project_id = ?', (g.user['id'], id)
-    ).fetchone()
+    note = db.table('note').select("*").eq("user_id", g.user['id']). eq("project_id", id).execute().data[0]
 
-    if note is None:
+    if note == []:
         return jsonify('Failed to get note')
     
     else:
@@ -166,18 +166,40 @@ def get_note(id):
 @bp.route('/note/<int:id>/create', methods=['POST'])
 @login_required
 def add_note(id):
-    data = request.data
+    data = request.json
 
     db = get_db()
 
     try:
-        db.execute(
-            'INSERT OR REPLACE INTO note (user_id, project_id, the_note)'
-            'VALUES (?, ?, ?)',
-            (g.user['id'], id, data)
-        )
-        db.commit()
-    except Exception as ex:
-        raise Exception("An unexpected database query exception: ", str(ex)
-                        )
+        db.table('note').upsert({"user_id": g.user['id'], "project_id": id, "the_note": data}).execute()
+
+    except APIError as e:
+        print("Error adding note to project:", e)
+                        
     return redirect(url_for('project.project', id=id))
+
+@bp.route('/plan/<int:id>/edit', methods=['GET', 'POST'])
+@login_required
+def edit_plan(id):
+
+    db = get_db();
+    if request.method == 'POST':
+        daily = None
+        weekly = None
+
+        daily = request.form.get('daily')
+        weekly = request.form.get('weekly')
+
+        try:
+            db.table('project_plan').upsert({"project_id": id, "daily_goal": daily, "weekly_goal": weekly}).execute()
+
+        except APIError as ex:
+            raise Exception("An unexpected database query exception: ", str(ex))
+        
+        return redirect(url_for('project.project', id=id))
+
+    else:
+
+        plan = db.table('project_plan').select('*').eq("project_id", id).execute().data[0]
+
+        return render_template('project/plan.html', plan=plan)
